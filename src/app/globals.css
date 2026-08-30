@@ -11,9 +11,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-red-hat);
   --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-serif);
+  --font-serif: var(--font-the-seasons);
+  --font-accent: var(--font-abramo);
   --color-surface-overlay: var(--surface-overlay);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
@@ -60,14 +61,15 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.985 0.002 90);
-  --foreground: oklch(0.23 0 0);
-  --card: oklch(0.985 0.002 90);
-  --card-foreground: oklch(0.23 0 0);
-  --popover: oklch(0.985 0.002 90);
-  --popover-foreground: oklch(0.23 0 0);
-  --primary: oklch(0.25 0 0);
+  /* GQ / Architectural Digest editorial feel — near-square corners, pure white ground. */
+  --radius: 0.25rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.252 0 0); /* #222 near-black */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.252 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.252 0 0);
+  --primary: oklch(0.252 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: oklch(0.25 0 0);
@@ -83,10 +85,10 @@
   --warning-foreground: oklch(0.25 0 0);
   --info: oklch(0.6 0.155 252.353);
   --info-foreground: oklch(0.985 0 0);
-  --brand: oklch(0.55 0.22 265);
+  --brand: oklch(0.4331 0.1689 29.22); /* #980F09 deep maroon/wine */
   --brand-foreground: oklch(0.985 0 0);
-  --surface-overlay: oklch(0.985 0.002 90 / 90%);
-  --border: oklch(0.88 0 0);
+  --surface-overlay: oklch(1 0 0 / 90%);
+  --border: oklch(0.9 0 0);
   --input: oklch(0.88 0 0);
   --ring: oklch(0.72 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
@@ -127,7 +129,7 @@
   --warning-foreground: oklch(0.141 0.005 285.823);
   --info: oklch(0.621 0.155 243.466);
   --info-foreground: oklch(0.985 0 0);
-  --brand: oklch(0.62 0.22 265);
+  --brand: oklch(0.53 0.17 29.22); /* #980F09 lifted ~+0.10 L for dark ground */
   --brand-foreground: oklch(0.985 0 0);
   --surface-overlay: oklch(0.205 0 0 / 85%);
   --border: oklch(1 0 0 / 10%);
@@ -152,19 +154,68 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    /* `clip` (not `hidden`) contains over-wide hero layers without turning
+       html/body into scroll containers — keeps `position: sticky` alive. */
+    overflow-x: clip;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Lets each hero stage "click" into place. `proximity` only nudges when a
+       snap sentinel is already near the top — the rest of the page is
+       unaffected (there are no other snap targets). */
+    html {
+      scroll-snap-type: y proximity;
+    }
+  }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-red-hat), ui-sans-serif, system-ui, sans-serif;
+  }
+  :root {
+    /* Global sticky navbar height — consumed by `h-(--nav-h)` in
+       site-navbar.tsx and by `scroll-mt-[calc(var(--nav-h)+1.5rem)]` on every
+       in-page anchor target so the two can never drift. */
+    --nav-h: 4rem;
   }
 }
 
 @layer utilities {
   .font-serif {
-    font-family: var(--font-serif), Georgia, serif;
+    font-family: var(--font-the-seasons), Georgia, "Times New Roman", serif;
+  }
+  /* Large editorial pull quote — The Seasons, maroon. Section quotes / belief
+     statements only, never body copy. */
+  .pull-quote {
+    font-family: var(--font-the-seasons), Georgia, "Times New Roman", serif;
+    color: var(--brand);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  /* Abramo — all-caps display serif, special callouts only. */
+  .font-accent {
+    font-family: var(--font-abramo), var(--font-the-seasons), Georgia, serif;
   }
   .section-padding {
     padding-block: 6rem;
   }
   .section-padding-lg {
     padding-block: 8rem;
+  }
+  /* Curtain reveal for the pinned hero — the rest of the page slides up over
+     the locked stage and snaps flush once it covers. Keep the margin equal to
+     CURTAIN_VH in src/app/_sections/hero-scroll.ts. Reset under reduced motion,
+     where the hero collapses to a single non-pinned viewport. */
+  .hero-curtain {
+    margin-top: -100vh;
+    scroll-snap-align: start;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-curtain {
+      margin-top: 0;
+      scroll-snap-align: none;
+    }
   }
 }
