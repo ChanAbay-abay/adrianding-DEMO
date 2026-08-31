@@ -16,12 +16,14 @@ import { gsap, useGSAP, EASE, DUR } from "@/app/_lib/gsap"
  *     light scrim + vignette keep the white type legible.
  *   - The portrait cut-out is pushed to the RIGHT and bleeds a little off-frame,
  *     like a magazine cover subject.
- *   - "Adrian Ding" is set as one enormous centred serif line, dropped low so
- *     its lower third crosses into the bottom nav bar.
- *   - One short belief-statement tagline sits above it; one workshop-forward CTA
- *     lives in the top row beside the social icons.
+ *   - "Adrian Ding" is set as one enormous serif line in the TOP-LEFT (it runs
+ *     into the portrait, cover-style), with the belief-statement tagline and the
+ *     social icons stacked right under it.
+ *   - The role list (coach / trainer / speaker / writer) sits in the BOTTOM-LEFT
+ *     above one CTA button that anchors to the page's #cta section (built later —
+ *     it will branch to workshop registration vs. corporate-training contact).
  *
- * Nav is split like the reference: a minimal top row (socials + Register) that
+ * Nav is split like the reference: a minimal top row (one Register CTA) that
  * scrolls away with the hero, plus the main link bar which sits at the hero's
  * bottom edge and then pins to the top of the viewport for the rest of the page.
  *
@@ -65,11 +67,26 @@ const NAV_RIGHT = [
   { href: "/corporate-training", label: "Corporate Training" },
 ]
 
+// Cover lines — his four hats, stacked bottom-left like a magazine's cover copy.
+const ROLES = [
+  "Leadership Development Coach",
+  "Corporate Trainer",
+  "Keynote Speaker",
+  "Inspirational Writer",
+]
+
+// #cta — the section is built later; it branches to workshop registration vs.
+// corporate-training contact. Every funnel button on the hero points here.
+const CTA_HREF = "#cta"
+
 const WORD =
-  "block font-serif font-normal whitespace-nowrap leading-[0.9] tracking-[-0.02em] text-white text-[clamp(2.5rem,9.5vw,8rem)] [text-shadow:0_12px_60px_rgba(0,0,0,0.6)]"
+  "block font-serif font-normal whitespace-nowrap leading-[0.82] tracking-[-0.03em] text-white text-[clamp(3.25rem,13.5vw,12rem)] [text-shadow:0_12px_60px_rgba(0,0,0,0.55)]"
 
 const NAV_LINK =
   "text-[0.7rem] font-semibold tracking-[0.16em] text-white/75 uppercase transition-colors hover:text-white"
+
+const ROLE_LINE =
+  "he-line text-[0.72rem] font-semibold tracking-[0.22em] text-white/70 uppercase"
 
 export function HeroEditorial() {
   useGSAP(() => {
@@ -143,7 +160,7 @@ export function HeroEditorial() {
           />
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_60%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]" />
-          {/* Bottom-up wash — grounds the tagline + wordmark. */}
+          {/* Bottom-up wash — grounds the cover lines + CTA over the nav seam. */}
           <div className="absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-black/60 to-transparent" />
         </div>
 
@@ -159,37 +176,54 @@ export function HeroEditorial() {
           />
         </div>
 
-        {/* Centred tagline + giant wordmark, bottom-anchored so the lower third
-            of the wordmark crosses into the bottom nav bar. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col items-center px-6 pb-[2vh] text-center">
-          <p className="he-line max-w-[34rem] font-serif text-[0.95rem] leading-relaxed text-white/80 italic sm:text-lg">
+        {/* Top-left cluster — the giant wordmark runs into the portrait,
+            cover-style; the belief line and the socials sit right under it. */}
+        <div className="pointer-events-none absolute top-12 left-6 z-30 max-w-[68rem] sm:top-16 sm:left-10">
+          <div className="block overflow-hidden pb-[0.12em]">
+            <h1 className={`he-word ${WORD}`}>Adrian Ding</h1>
+          </div>
+          <p className="he-line mt-6 max-w-[32rem] font-serif text-base leading-relaxed text-white/80 italic sm:text-lg">
             {TAGLINE}
             <br />
             {TAGLINE_2}
           </p>
-          <div className="mt-7 block overflow-hidden pb-[0.14em] sm:mt-10">
-            <h1 className={`he-word ${WORD}`}>Adrian Ding</h1>
-          </div>
-        </div>
-
-        {/* Top row — socials + one workshop-forward CTA. Scrolls away with the
-            hero (absolute, not fixed); the persistent nav is the bar below. */}
-        <div className="absolute inset-x-0 top-0 z-40 flex h-14 items-center justify-between px-6 sm:px-10">
-          <div className="he-line flex items-center gap-4">
+          <div className="he-line pointer-events-auto mt-6 flex items-center gap-4">
             {SOCIALS.map(({ label, Icon }) => (
               <a
                 key={label}
                 href="#"
                 aria-label={label}
-                className="text-white/75 transition-colors hover:text-white"
+                className="text-white/70 transition-colors hover:text-white"
               >
                 <Icon className="size-[1.1rem]" />
               </a>
             ))}
           </div>
+        </div>
+
+        {/* Bottom-left cluster — cover lines + the single funnel CTA. Padded to
+            clear the pinned nav bar (--nav-h) that overlays the hero's foot. */}
+        <div className="absolute bottom-0 left-6 z-30 flex flex-col items-start gap-6 pb-[calc(var(--nav-h)+3vh)] sm:left-10">
+          <ul className="flex flex-col gap-2">
+            {ROLES.map((role) => (
+              <li key={role} className={ROLE_LINE}>
+                {role}
+              </li>
+            ))}
+          </ul>
+          <div className="he-line">
+            <Button asChild variant="brand" size="lg" className="shadow-xl">
+              <Link href={CTA_HREF}>Work with Adrian</Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Top-right — funnel CTA that scrolls away with the hero; the nav bar
+            below carries the lasting one. */}
+        <div className="absolute top-0 right-6 z-40 flex h-14 items-center sm:right-10">
           <div className="he-line">
             <Button asChild variant="brand" size="sm" className="shadow-lg">
-              <Link href="/workshops">Register</Link>
+              <Link href={CTA_HREF}>Register</Link>
             </Button>
           </div>
         </div>
@@ -231,7 +265,7 @@ export function HeroEditorial() {
             </Link>
           ))}
           <Button asChild variant="brand" size="sm">
-            <Link href="/workshops">Register</Link>
+            <Link href={CTA_HREF}>Register</Link>
           </Button>
         </div>
       </nav>
