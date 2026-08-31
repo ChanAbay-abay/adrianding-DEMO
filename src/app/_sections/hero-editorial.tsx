@@ -14,8 +14,8 @@ import { gsap, useGSAP, EASE, DUR } from "@/app/_lib/gsap"
  *
  *   - `ad-bg-2.png` fills the frame (the file already carries a mono grade); a
  *     light scrim + vignette keep the white type legible.
- *   - The portrait cut-out is pushed to the RIGHT and bleeds a little off-frame,
- *     like a magazine cover subject.
+ *   - The portrait cut-out sits right-of-centre, magazine-cover-subject style,
+ *     with the wordmark's tail running over its shoulder.
  *   - "Adrian Ding" is set as one enormous serif line in the TOP-LEFT (it runs
  *     into the portrait, cover-style), with the belief-statement tagline and the
  *     social icons stacked right under it.
@@ -58,11 +58,9 @@ const SOCIALS = [
   { label: "YouTube", Icon: Youtube },
 ]
 
-const NAV_LEFT = [
+const NAV_LINKS = [
   { href: "/about", label: "About" },
   { href: "/gallery", label: "Gallery" },
-]
-const NAV_RIGHT = [
   { href: "/workshops", label: "Workshops" },
   { href: "/corporate-training", label: "Corporate Training" },
 ]
@@ -80,7 +78,7 @@ const ROLES = [
 const CTA_HREF = "#cta"
 
 const WORD =
-  "block font-serif font-normal whitespace-nowrap leading-[0.82] tracking-[-0.03em] text-white text-[clamp(3.25rem,13.5vw,12rem)] [text-shadow:0_12px_60px_rgba(0,0,0,0.55)]"
+  "block font-serif font-normal whitespace-nowrap leading-[0.82] tracking-[-0.03em] text-white text-[clamp(3rem,12vw,10.5rem)] [text-shadow:0_12px_60px_rgba(0,0,0,0.55)]"
 
 const NAV_LINK =
   "text-[0.7rem] font-semibold tracking-[0.16em] text-white/75 uppercase transition-colors hover:text-white"
@@ -147,7 +145,12 @@ export function HeroEditorial() {
 
   return (
     <>
-      <div className="relative min-h-[100svh] w-full overflow-hidden bg-[#141414]">
+      {/* `sticky top-0` so the hero holds at the top while the opaque
+          <QuoteReveal /> sheet (a later sibling, z-10) rides up over it. It stays
+          stuck for the rest of the page but is fully covered from there on, so no
+          unpin logic is needed. `z-0` boxes its inner z-20/30/40 layers in so
+          they can't poke above the sheet. (cf. tasks/lessons.md 2026-08-09.) */}
+      <div className="sticky top-0 z-0 min-h-[100svh] w-full overflow-hidden bg-[#141414]">
         {/* Background — ad-bg-2 (already mono). Light scrim + vignette. */}
         <div className="he-bg absolute inset-[-4%] z-0 will-change-transform">
           <Image
@@ -164,8 +167,8 @@ export function HeroEditorial() {
           <div className="absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-black/60 to-transparent" />
         </div>
 
-        {/* Portrait — pushed right, bleeding a touch off-frame */}
-        <div className="he-portrait pointer-events-none absolute -right-[6%] bottom-0 z-20 aspect-[1080/1720] h-[74svh] w-auto will-change-transform select-none sm:-right-[3%] sm:h-[82svh] lg:right-0 lg:h-[90svh]">
+        {/* Portrait — right-of-centre, cover-subject style */}
+        <div className="he-portrait pointer-events-none absolute -right-[3%] bottom-0 z-20 aspect-[1080/1720] h-[74svh] w-auto will-change-transform select-none sm:right-[4%] sm:h-[82svh] lg:right-[11%] lg:h-[90svh]">
           <Image
             src="/images/ad-hero-portrait.png"
             alt="Coach Adrian Ding"
@@ -178,8 +181,10 @@ export function HeroEditorial() {
 
         {/* Top-left cluster — the giant wordmark runs into the portrait,
             cover-style; the belief line and the socials sit right under it. */}
-        <div className="pointer-events-none absolute top-12 left-6 z-30 max-w-[68rem] sm:top-16 sm:left-10">
-          <div className="block overflow-hidden pb-[0.12em]">
+        <div className="pointer-events-none absolute top-12 left-6 z-30 sm:top-16 sm:left-10">
+          {/* w-max so the mask wrapper hugs the wordmark — overflow-hidden then
+              only clips the vertical reveal, never the last glyph of "Ding". */}
+          <div className="w-max overflow-hidden pb-[0.12em]">
             <h1 className={`he-word ${WORD}`}>Adrian Ding</h1>
           </div>
           <p className="he-line mt-6 max-w-[32rem] font-serif text-base leading-relaxed text-white/80 italic sm:text-lg">
@@ -238,28 +243,21 @@ export function HeroEditorial() {
         aria-label="Main"
         className="he-nav sticky top-0 z-40 mt-[calc(var(--nav-h)*-1)] flex h-(--nav-h) items-center justify-between gap-6 bg-[#141414] px-6 sm:px-10"
       >
+        <Link
+          href="/"
+          aria-label="Coach Adrian Ding — home"
+          className="flex items-center"
+        >
+          <Image
+            src="/images/ad-logo-white.png"
+            alt="Adrian Ding monogram"
+            width={80}
+            height={80}
+            className="h-7 w-7 object-contain"
+          />
+        </Link>
         <div className="flex items-center gap-7">
-          <Link
-            href="/"
-            aria-label="Coach Adrian Ding — home"
-            className="flex items-center"
-          >
-            <Image
-              src="/images/ad-logo-white.png"
-              alt="Adrian Ding monogram"
-              width={80}
-              height={80}
-              className="h-7 w-7 object-contain"
-            />
-          </Link>
-          {NAV_LEFT.map((l) => (
-            <Link key={l.href} href={l.href} className={NAV_LINK}>
-              {l.label}
-            </Link>
-          ))}
-        </div>
-        <div className="flex items-center gap-7">
-          {NAV_RIGHT.map((l) => (
+          {NAV_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className={NAV_LINK}>
               {l.label}
             </Link>
