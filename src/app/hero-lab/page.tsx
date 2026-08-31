@@ -21,6 +21,13 @@ const VARIANTS = [
     blurb:
       "Statement carries the screen, portrait is the supporting column. Light editorial ground, one primary CTA (workshop-forward), hairline stat row, company name-drop. Headline splits into masked lines on load.",
   },
+  {
+    href: "/hero-lab/editorial",
+    name: "Editorial cover",
+    tag: "#7",
+    blurb:
+      "GQ-cover restart, modelled on the Jasmine Star treatment. One full-screen frame (ad-bg-2), portrait pushed right and bleeding off-frame, one enormous centred “Adrian Ding” serif line dropped over the nav seam. Split nav: minimal top row (socials + Register) that scrolls away, main link bar sits at the hero's bottom edge then pins to the top — pure-CSS sticky hand-off. No scroll pin, no curtain (stages 1 & 2 dropped this pass).",
+  },
 ]
 
 export default function HeroLabIndex() {
@@ -33,7 +40,7 @@ export default function HeroLabIndex() {
         Hero Lab
       </h1>
       <p className="text-muted-foreground mt-4 max-w-xl">
-        Two directions to compare against the current scroll-locked two-stage
+        Three directions to compare against the current scroll-locked two-stage
         hero. Each opens full-screen with a couple of real sections below it so
         the scroll-out reads.
       </p>

@@ -1,5 +1,4 @@
-import { SiteNavbar } from "./_components/site-navbar"
-import { DemoHero } from "./_sections/hero"
+import { HeroEditorial } from "./_sections/hero-editorial"
 import { LandingStats } from "./_sections/stats"
 import { LandingAbout } from "./_sections/about-teaser"
 import { LandingSpecializations } from "./_sections/specializations"
@@ -14,15 +13,14 @@ import { SiteFooter } from "./_components/site-footer"
 export default function Page() {
   return (
     <main>
-      {/* One navbar for the whole site. Over the hero it floats transparent,
-          then turns solid once `.hero-curtain` rises under it. */}
-      <SiteNavbar overHero />
-      <DemoHero />
-      {/* Curtain: the rest of the page rises up over the pinned hero. The
-          negative margin lives in `.hero-curtain` (globals.css) so it can be
-          reset under prefers-reduced-motion, where the hero is only one
-          viewport tall. The hero itself is owned by a separate work stream. */}
-      <div className="hero-curtain bg-background relative z-10 rounded-t-[1.75rem] shadow-[0_-30px_60px_-15px_rgba(0,0,0,0.55)]">
+      {/* Editorial-cover hero (#7). It renders its own split nav: a minimal top
+          row (socials + Register) that scrolls away, plus the main link bar that
+          starts at the hero's bottom edge and pins to the top for the rest of
+          the page. Its sticky containing block is this <main>, so it stays
+          pinned through every section below — no separate <SiteNavbar> here. */}
+      <HeroEditorial />
+      {/* Opaque plane the rest of the page scrolls up on, above the hero. */}
+      <div className="bg-background relative z-10">
         <LandingStats />
         <LandingAbout />
         <LandingSpecializations />

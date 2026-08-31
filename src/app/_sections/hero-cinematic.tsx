@@ -180,7 +180,7 @@ export function HeroCinematic() {
       {/* Dual CTA — workshop-forward. `hero-line` sits on this container, not on
           the <Button asChild> Slots — a GSAP autoAlpha tween on a Radix Slot
           child leaves it stuck at visibility:hidden. */}
-      <div className="hero-line absolute right-[3vw] bottom-[4vh] left-[3vw] z-40 flex flex-col gap-3 sm:bottom-[9vh] sm:left-auto sm:flex-row *:w-full sm:*:w-auto">
+      <div className="hero-line absolute right-[3vw] bottom-[4vh] left-[3vw] z-40 flex flex-col gap-3 *:w-full sm:bottom-[9vh] sm:left-auto sm:flex-row sm:*:w-auto">
         <Button
           asChild
           variant="outline"
