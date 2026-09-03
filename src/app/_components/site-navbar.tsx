@@ -15,6 +15,10 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { useNavbarTheme } from "@/app/_lib/use-navbar-theme"
+import {
+  smoothScrollToElement,
+  smoothScrollToTop,
+} from "@/app/_lib/smooth-scroll-to"
 import { cn } from "@/lib/utils"
 
 /**
@@ -108,13 +112,29 @@ export function SiteNavbar({
   // navigation — clicking a same-page `Link` (already on `/`) just rewrites
   // the hash and leaves scroll position alone. Intercept and scroll by hand
   // whenever we're already on the target page.
+  //
+  // `smoothScrollToElement` (not native `scrollIntoView`) because the target
+  // is `<LandingPaths>`: as the page scrolls under a stationary cursor, it
+  // crosses into the card grid and fires that card's `mouseenter`, which
+  // kicks off the hover take-over's `grid-template-columns` transition — a
+  // layout shift that silently abandons a native smooth scroll partway there
+  // (cf. tasks/lessons.md "Smooth-Scroll Anchor Navigation").
   const handleCtaClick = (e: React.MouseEvent) => {
     if (pathname !== "/") return
     e.preventDefault()
-    document
-      .getElementById("which-path")
-      ?.scrollIntoView({ behavior: "smooth" })
+    const target = document.getElementById("which-path")
+    if (!target) return
     window.history.replaceState(null, "", CTA_HREF)
+    smoothScrollToElement(target)
+  }
+
+  // Clicking a nav link for the page you're already on doesn't navigate (Next
+  // just no-ops), which reads as broken if you're scrolled deep into that
+  // page. Treat it as "take me to the top" instead — same for the logo.
+  const handleSamePageClick = (href: string) => (e: React.MouseEvent) => {
+    if (pathname !== href) return
+    e.preventDefault()
+    smoothScrollToTop()
   }
 
   return (
@@ -138,6 +158,7 @@ export function SiteNavbar({
         <Link
           href="/"
           aria-label="Coach Adrian Ding — home"
+          onClick={handleSamePageClick("/")}
           className="flex items-center gap-2.5"
         >
           <Image
@@ -161,6 +182,7 @@ export function SiteNavbar({
             <Link
               key={l.href}
               href={l.href}
+              onClick={handleSamePageClick(l.href)}
               aria-current={isActive(l.href) ? "page" : undefined}
               className={cn(
                 "text-[0.95rem] font-medium transition-colors",
@@ -251,7 +273,10 @@ export function SiteNavbar({
               <SheetTitle asChild>
                 <Link
                   href="/"
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => {
+                    setOpen(false)
+                    handleSamePageClick("/")(e)
+                  }}
                   className="flex items-center gap-2.5"
                 >
                   <Image
@@ -273,6 +298,7 @@ export function SiteNavbar({
                   <SheetClose asChild key={l.href}>
                     <Link
                       href={l.href}
+                      onClick={handleSamePageClick(l.href)}
                       aria-current={isActive(l.href) ? "page" : undefined}
                       className={cn(
                         "rounded-sm px-2 py-3 text-[0.95rem] font-medium transition-colors",

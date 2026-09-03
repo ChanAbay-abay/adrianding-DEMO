@@ -14,6 +14,7 @@ import {
 } from "framer-motion"
 import { useReducedMotionSafe } from "@/app/_lib/use-reduced-motion-safe"
 import { useIsTouch } from "@/app/_lib/use-is-touch"
+import { smoothScrollToElement } from "@/app/_lib/smooth-scroll-to"
 import { Reveal } from "@/app/_components/reveal"
 import { TextSweepReveal } from "@/app/_components/text-sweep-reveal"
 
@@ -26,7 +27,7 @@ import { TextSweepReveal } from "@/app/_components/text-sweep-reveal"
  *
  * Each card is a two-plate composite — a blurred room photo (`*-bg`) with a
  * cut-out of Adrian (`*-fg`, transparent PNG) registered on top at the same
- * frame. Both plates overscan their card (`inset-[-12%]` + a small `scale`) so
+ * frame. Both plates overscan their card (see `PLATE` + a small `scale`) so
  * they can move without ever exposing an edge; the overscan is kept modest so
  * the cut-out subject (feet on one, raised hand on the other) stays in frame.
  *
@@ -57,6 +58,27 @@ import { TextSweepReveal } from "@/app/_components/text-sweep-reveal"
  * straight from one card to the other hands off without a flicker instead of
  * blanking the state the new card just set (lessons 2026-08-14).
  *
+ * White-tile flash (2026-09-04): the take-over used to resize the image plates
+ * along with the card — they were `inset-[-12%]`, a percentage of a box whose
+ * width is what the animation changes. Each plate carries `will-change:
+ * transform`, so each is its own composited layer, and a composited layer that
+ * changes size has to be re-rasterized at a new texture size every frame; tiles
+ * that miss the frame deadline paint blank, which showed up as patches of the
+ * card flashing white on every single hover.
+ *
+ * Fix: at `lg` the plates get a fixed 80vw width (`PLATE`) and the card's
+ * `overflow-hidden` clips them, so the take-over is a curtain reveal over a
+ * static texture instead of a resize. Parallax moved onto an inner node of each
+ * plate so the wrapper can keep its own centring `-translate-x-1/2`
+ * (framer-motion owns `transform` on the node it animates). The box-shadow swap
+ * is now instant rather than transitioned, which drops a 110px-blur repaint of
+ * the whole card from every frame of the animation.
+ *
+ * The scrims below are deliberately left resizing on `inset-0`: they are plain
+ * gradients with no `will-change`, so they paint into the card's own layer and
+ * never had the composited-resize problem. Pinning them to a fixed width was
+ * tried and reverted — it visibly darkens the yielded card, for no win.
+ *
  * The grid is animated in as one unit (no `Reveal` stagger) — stagger writes an
  * inline transform onto each direct child.
  */
@@ -69,7 +91,16 @@ type Path = {
   bgBlur: string
   fg: string
   imageAlt: string
-  /** Per-card position tweak for the fg cut-out (Tailwind translate utils). */
+  /**
+   * Per-card position tweak for the fg cut-out (Tailwind translate utils).
+   *
+   * A percentage here resolves against the *plate*, not the card — so any
+   * horizontal nudge needs an `lg:` restatement, because `PLATE` switches from
+   * a 62vw-equivalent box to a fixed 80vw one at that breakpoint. Restate it in
+   * `vw` (5% of 62vw = 3.1vw) so the cut-out lands in the same place either
+   * side of the breakpoint. Vertical nudges resolve against the plate height,
+   * which `PLATE` doesn't touch, so they need no restatement.
+   */
   fgClass: string
   eyebrow: string
   title: string
@@ -99,7 +130,7 @@ const PATHS: readonly [Path, Path] = [
       "data:image/jpeg;base64,/9j/2wBDABIMDRANCxIQDhAUExIVGywdGxgYGzYnKSAsQDlEQz85Pj1HUGZXR0thTT0+WXlaYWltcnNyRVV9hnxvhWZwcm7/2wBDARMUFBsXGzQdHTRuST5Jbm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/wAARCAAGAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAT/xAAgEAABAwQCAwAAAAAAAAAAAAABAAIDBRESIQQTMUHh/8QAFAEBAAAAAAAAAAAAAAAAAAAAAv/EABYRAQEBAAAAAAAAAAAAAAAAAAABMf/aAAwDAQACEQMRAD8AsolbZypJWyxvDWtGO8j5PtUS1CMSvx7QLm2/qInBuv/Z",
     fg: "/images/mascot/corporate-fg.png",
     imageAlt: "Adrian Ding leading a corporate training session",
-    fgClass: "translate-x-[5%] translate-y-[4%]",
+    fgClass: "translate-x-[5%] translate-y-[4%] lg:translate-x-[3.1vw]",
     eyebrow: "For companies",
     title: "Train your team",
     blurb:
@@ -109,14 +140,29 @@ const PATHS: readonly [Path, Path] = [
 ]
 
 const CARD =
-  "group relative flex min-h-[54svh] min-w-0 flex-col justify-end overflow-hidden transition-[box-shadow] duration-500 ease-out motion-reduce:transition-none md:min-h-[104svh]"
+  "group relative flex min-h-[54svh] min-w-0 flex-col justify-end overflow-hidden md:min-h-[104svh]"
 
 // Column split for the container: resting 50/50, or ~2/3 to the hovered card.
 const COLS = ["1.7fr 0.85fr", "0.85fr 1.7fr"] as const
 const COLS_REST = "1fr 1fr"
 const COLS_EASE = "grid-template-columns 650ms cubic-bezier(0.22, 1, 0.36, 1)"
 
-const PLATE_SIZES = "(min-width: 768px) 62vw, 124vw"
+const PLATE_SIZES = "(min-width: 1024px) 80vw, (min-width: 768px) 62vw, 124vw"
+
+/**
+ * Plate box — the frame both image layers are painted into.
+ *
+ * Below `lg` it is the old `inset-[-12%]` overscan of the card, which is fine
+ * because nothing resizes there (the take-over is `lg`-only). At `lg` the width
+ * is *fixed* at 80vw and centred on the card instead, so the take-over never
+ * changes the plate's size — see the "White-tile flash" note in the block
+ * comment above. 80vw comfortably exceeds the widest a card can get (66.6vw),
+ * and because `object-cover` is height-driven at these proportions, widening
+ * the box only reveals more of the same render — the visible framing at both
+ * rest and full expansion is identical to the old percentage box.
+ */
+const PLATE =
+  "absolute inset-[-12%] lg:right-auto lg:left-1/2 lg:w-[80vw] lg:-translate-x-1/2"
 
 export function LandingPaths() {
   // Mount-gated (lessons 2026-09-02): `PathCard` swaps its whole plate markup on
@@ -155,9 +201,8 @@ export function LandingPaths() {
   useEffect(() => {
     if (window.location.hash !== "#which-path") return
     const id = window.setTimeout(() => {
-      gridRef.current
-        ?.closest("section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+      const section = gridRef.current?.closest<HTMLElement>("section")
+      if (section) smoothScrollToElement(section)
     }, 400)
     return () => window.clearTimeout(id)
   }, [])
@@ -315,32 +360,36 @@ function PathCard({
         </>
       ) : (
         <>
-          <motion.div
-            style={{ x: bgX, y: bgY }}
-            className="absolute inset-[-12%] z-0 will-change-transform"
-          >
-            <Image
-              src={p.bg}
-              alt=""
-              fill
-              sizes={PLATE_SIZES}
-              placeholder="blur"
-              blurDataURL={p.bgBlur}
-              className="scale-[1.08] object-cover"
-            />
-          </motion.div>
-          <motion.div
-            style={{ x: fgX, y: fgY }}
-            className="absolute inset-[-12%] z-10 will-change-transform"
-          >
-            <Image
-              src={p.fg}
-              alt={p.imageAlt}
-              fill
-              sizes={PLATE_SIZES}
-              className={`${p.fgClass} scale-[1.04] object-cover`}
-            />
-          </motion.div>
+          <div className={`${PLATE} z-0`}>
+            <motion.div
+              style={{ x: bgX, y: bgY }}
+              className="absolute inset-0 will-change-transform"
+            >
+              <Image
+                src={p.bg}
+                alt=""
+                fill
+                sizes={PLATE_SIZES}
+                placeholder="blur"
+                blurDataURL={p.bgBlur}
+                className="scale-[1.08] object-cover"
+              />
+            </motion.div>
+          </div>
+          <div className={`${PLATE} z-10`}>
+            <motion.div
+              style={{ x: fgX, y: fgY }}
+              className="absolute inset-0 will-change-transform"
+            >
+              <Image
+                src={p.fg}
+                alt={p.imageAlt}
+                fill
+                sizes={PLATE_SIZES}
+                className={`${p.fgClass} scale-[1.04] object-cover`}
+              />
+            </motion.div>
+          </div>
         </>
       )}
 

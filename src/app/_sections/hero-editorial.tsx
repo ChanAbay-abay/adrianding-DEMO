@@ -114,6 +114,35 @@ export function HeroEditorial() {
           { y: 18, autoAlpha: 0, duration: DUR.base, stagger: 0.08 },
           "-=0.5"
         )
+
+      // Pointer parallax — the background drifts against the cursor while the
+      // portrait drifts with it, so the two planes separate as the mouse moves.
+      // `quickTo` keeps it to one sprung tween per property instead of a new
+      // tween per mousemove. Mouse-only: on touch there is no cursor to track,
+      // and the listener would never fire anyway.
+      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        const bgX = gsap.quickTo(".he-bg", "xPercent", {
+          duration: 0.7,
+          ease: "power3.out",
+        })
+        const bgY = gsap.quickTo(".he-bg", "yPercent", {
+          duration: 0.7,
+          ease: "power3.out",
+        })
+        const portraitX = gsap.quickTo(".he-portrait", "xPercent", {
+          duration: 0.7,
+          ease: "power3.out",
+        })
+        const onMove = (e: MouseEvent) => {
+          const x = e.clientX / window.innerWidth - 0.5
+          const y = e.clientY / window.innerHeight - 0.5
+          bgX(x * -2)
+          bgY(y * -1.5)
+          portraitX(x * 2)
+        }
+        window.addEventListener("mousemove", onMove, { passive: true })
+        return () => window.removeEventListener("mousemove", onMove)
+      }
     })
 
     return () => mm.revert()
