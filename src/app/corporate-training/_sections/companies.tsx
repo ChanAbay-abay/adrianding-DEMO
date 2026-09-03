@@ -6,7 +6,7 @@ import { CompaniesMarquee } from "@/app/_components/companies-marquee"
  */
 export function CorporateCompanies() {
   return (
-    <section className="bg-muted/40 overflow-hidden py-24 lg:py-36">
+    <section className="bg-muted/40 overflow-hidden pt-0 pb-24 lg:pb-36">
       <div className="mx-auto max-w-7xl px-6 sm:px-8">
         <SplitReveal
           rule

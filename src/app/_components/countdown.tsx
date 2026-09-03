@@ -1,7 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import NumberFlow from "@number-flow/react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+
+const MotionNumberFlow = motion.create(NumberFlow)
 
 type CountdownProps = {
   /** Event start — ISO string or Date. */
@@ -11,9 +15,9 @@ type CountdownProps = {
 
 const UNITS = [
   { key: "days", label: "Days" },
-  { key: "hours", label: "Hrs" },
-  { key: "minutes", label: "Min" },
-  { key: "seconds", label: "Sec" },
+  { key: "hours", label: "Hours" },
+  { key: "minutes", label: "Minutes" },
+  { key: "seconds", label: "Seconds" },
 ] as const
 
 function breakdown(ms: number) {
@@ -28,7 +32,7 @@ function breakdown(ms: number) {
 
 /**
  * Live countdown to an event. Renders em-dashes until mounted so server and
- * client markup match, then ticks once a second. Plain `setInterval` — no GSAP.
+ * client markup match, then ticks once a second with animated digit flips.
  */
 export function Countdown({ target, className }: CountdownProps) {
   const targetMs = new Date(target).getTime()
@@ -44,26 +48,35 @@ export function Countdown({ target, className }: CountdownProps) {
   const done = remaining != null && remaining <= 0
   const parts = remaining == null ? null : breakdown(remaining)
 
+  if (done) {
+    return (
+      <span className={cn("text-muted-foreground text-sm", className)}>
+        This workshop has started.
+      </span>
+    )
+  }
+
   return (
-    <div className={cn("flex items-stretch gap-2 sm:gap-3", className)}>
-      {UNITS.map(({ key, label }) => (
-        <div
-          key={key}
-          className="bg-foreground text-background flex min-w-[3.75rem] flex-col items-center rounded-sm px-3 py-2.5 sm:min-w-[4.5rem] sm:py-3"
-        >
-          <span className="font-serif text-2xl leading-none tabular-nums sm:text-3xl">
-            {parts ? String(parts[key]).padStart(2, "0") : "--"}
-          </span>
-          <span className="text-background/60 mt-1.5 text-[0.625rem] font-medium tracking-[0.14em] uppercase">
-            {label}
-          </span>
+    <div className={cn("flex items-start gap-3 sm:gap-4", className)}>
+      {UNITS.map(({ key, label }, i) => (
+        <div key={key} className="flex items-start gap-3 sm:gap-4">
+          <div className="flex flex-col items-center">
+            <MotionNumberFlow
+              value={parts ? parts[key] : 0}
+              format={{ minimumIntegerDigits: 2 }}
+              className="text-4xl font-semibold tracking-tighter tabular-nums sm:text-5xl"
+            />
+            <span className="text-muted-foreground mt-1 text-[0.625rem] font-medium tracking-[0.14em] uppercase">
+              {label}
+            </span>
+          </div>
+          {i < UNITS.length - 1 && (
+            <span className="text-muted-foreground/40 pt-0.5 text-2xl font-semibold sm:text-3xl">
+              :
+            </span>
+          )}
         </div>
       ))}
-      {done && (
-        <span className="text-muted-foreground self-center pl-1 text-sm">
-          This workshop has started.
-        </span>
-      )}
     </div>
   )
 }

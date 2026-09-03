@@ -57,6 +57,18 @@ export function SplitReveal({
             linesClass: "split-line",
             wordsClass: "split-word",
           })
+          // Each `.split-line` clips its own overflow (`overflow: hidden`).
+          // With the tight serif leading on headings the glyph descenders
+          // (g p q y) paint below the line box and get sheared off. Grow the
+          // box down with padding so the descenders fall inside the clip, then
+          // pull the same amount back with a negative margin so line spacing
+          // and the heading's total height are unchanged.
+          if (by === "lines") {
+            gsap.set(split.lines, {
+              paddingBottom: "0.22em",
+              marginBottom: "-0.22em",
+            })
+          }
           const targets = by === "lines" ? split.lines : split.words
           const st = { trigger: el, start, once: true } as const
           tween = gsap.from(targets, {

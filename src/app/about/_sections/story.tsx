@@ -4,7 +4,8 @@ import { SplitReveal } from "@/app/_components/split-reveal"
 
 /**
  * About — the narrative. Belief chain from the deck: better people → better
- * companies → better country. Photo: ad-photo-2.
+ * companies → better country. Photo: ad-photo-2. The belief-chain line lives
+ * in <AboutHero> above; this section opens on the "two things I love" line.
  */
 export function AboutStory() {
   return (
@@ -12,16 +13,13 @@ export function AboutStory() {
       <div className="grid items-center gap-14 lg:grid-cols-[1fr_0.78fr] lg:gap-24">
         <div>
           <SplitReveal
-            as="h1"
-            className="font-serif text-[2.75rem] leading-[1.03] tracking-[-0.02em] sm:text-[3.5rem] lg:text-[4.5rem]"
+            as="h2"
+            className="font-serif text-[2.25rem] leading-[1.1] tracking-[-0.02em] sm:text-[2.75rem] lg:text-[3.25rem]"
           >
-            Better people build better companies.
+            Two things I love: coffee, and developing people.
           </SplitReveal>
 
           <Reveal delay={0.1} className="mt-10 space-y-6">
-            <p className="pull-quote text-[1.6rem] sm:text-[2rem]">
-              Two things I love: coffee, and developing people.
-            </p>
             <p className="text-muted-foreground text-lg leading-relaxed lg:text-xl">
               Adrian Ding is the CEO of Maximum Impact PH — a corporate trainer,
               leadership coach and keynote speaker with more than 20 years in
@@ -45,7 +43,7 @@ export function AboutStory() {
 
         <Reveal className="relative aspect-[4/5] overflow-hidden">
           <Image
-            src="/images/ad-photo-2.png"
+            src="/images/mascot/ad-photo-2.png"
             alt="Coach Adrian Ding"
             fill
             priority

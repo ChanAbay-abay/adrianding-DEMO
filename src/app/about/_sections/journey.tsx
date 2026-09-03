@@ -9,7 +9,7 @@ import { JOURNEY } from "@/lib/timeline"
 export function AboutJourney() {
   return (
     <section className="bg-muted/40 py-28 lg:py-44">
-      <div className="mx-auto max-w-4xl px-6 sm:px-8">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8">
         <SplitReveal
           rule
           className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[4rem]"

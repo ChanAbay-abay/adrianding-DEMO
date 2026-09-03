@@ -77,7 +77,10 @@ export function CorporateInquiryForm() {
   if (done) {
     const v = getValues()
     return (
-      <div ref={paneRef} className="border-border/70 rounded-md border p-8">
+      <div
+        ref={paneRef}
+        className="bg-background text-foreground rounded-xl p-8 shadow-2xl sm:p-10"
+      >
         <div className="bg-brand/10 text-brand flex size-12 items-center justify-center rounded-full">
           <Check className="size-6" />
         </div>
@@ -110,7 +113,7 @@ export function CorporateInquiryForm() {
   return (
     <form
       onSubmit={handleSubmit(() => setDone(true))}
-      className="border-border/70 rounded-md border p-6 sm:p-8"
+      className="bg-background text-foreground rounded-xl p-6 shadow-2xl sm:p-10"
     >
       <div className="flex items-center gap-2">
         {STEPS.map((s, i) => (

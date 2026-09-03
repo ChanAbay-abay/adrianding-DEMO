@@ -1,6 +1,12 @@
-import Image from "next/image"
 import Link from "next/link"
-import { Instagram, Linkedin, Facebook, Mail, Phone } from "lucide-react"
+import {
+  Instagram,
+  Linkedin,
+  Facebook,
+  Youtube,
+  Mail,
+  Phone,
+} from "lucide-react"
 
 /**
  * Global footer — used on every page including the landing page. Carries the
@@ -15,10 +21,13 @@ const NAV = [
   { href: "/staff-login", label: "Staff login" },
 ]
 
+// Kept in step with the hero's own SOCIALS (hero-editorial.tsx) — same five
+// platforms in both places.
 const SOCIALS = [
   { href: "https://instagram.com", label: "Instagram", Icon: Instagram },
-  { href: "https://linkedin.com", label: "LinkedIn", Icon: Linkedin },
   { href: "https://facebook.com", label: "Facebook", Icon: Facebook },
+  { href: "https://linkedin.com", label: "LinkedIn", Icon: Linkedin },
+  { href: "https://youtube.com", label: "YouTube", Icon: Youtube },
 ]
 
 function TikTokIcon({ className }: { className?: string }) {
@@ -36,28 +45,19 @@ function TikTokIcon({ className }: { className?: string }) {
 
 export function SiteFooter() {
   return (
-    <footer className="border-border/70 border-t">
-      <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-20">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer
+      data-navbar-theme="dark"
+      className="overflow-hidden bg-black text-white/70"
+    >
+      <div className="mx-auto max-w-7xl px-5 pt-16 sm:px-8 lg:pt-20">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-[1.4fr_1fr_1fr] md:gap-12">
           {/* Brand */}
-          <div>
-            <Link href="/" className="flex items-center gap-2.5">
-              <Image
-                src="/images/ad-logo-black.png"
-                alt="Adrian Ding monogram"
-                width={80}
-                height={80}
-                className="h-10 w-10 object-contain"
-              />
-              <span className="font-serif text-xl tracking-tight">
-                Adrian Ding
-              </span>
-            </Link>
-            <p className="text-muted-foreground mt-4 max-w-sm leading-relaxed">
+          <div className="col-span-2 md:col-span-1">
+            <p className="max-w-sm leading-relaxed text-white/50">
               Leadership development, corporate training and keynotes from the
               CEO of Maximum Impact PH. 20+ years, 20,000+ leaders trained.
             </p>
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-5 flex items-center justify-center gap-3 md:justify-start">
               {SOCIALS.map(({ href, label, Icon }) => (
                 <a
                   key={label}
@@ -65,7 +65,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="text-muted-foreground hover:text-brand hover:border-brand/40 border-border/70 flex size-9 items-center justify-center rounded-full border transition-colors"
+                  className="hover:text-brand hover:border-brand/40 flex size-11 items-center justify-center rounded-full border border-white/15 text-white/50 transition-colors"
                 >
                   <Icon className="size-4" />
                 </a>
@@ -75,7 +75,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="text-muted-foreground hover:text-brand hover:border-brand/40 border-border/70 flex size-9 items-center justify-center rounded-full border transition-colors"
+                className="hover:text-brand hover:border-brand/40 flex size-9 items-center justify-center rounded-full border border-white/15 text-white/50 transition-colors"
               >
                 <TikTokIcon className="size-4" />
               </a>
@@ -84,14 +84,14 @@ export function SiteFooter() {
 
           {/* Quick nav */}
           <nav aria-label="Footer" className="flex flex-col gap-3">
-            <p className="text-xs font-semibold tracking-[0.14em] uppercase">
+            <p className="text-xs font-semibold tracking-[0.14em] text-white/60 uppercase">
               Explore
             </p>
             {NAV.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-muted-foreground hover:text-foreground w-fit text-sm transition-colors"
+                className="w-fit text-sm text-white/60 transition-colors hover:text-white"
               >
                 {l.label}
               </Link>
@@ -100,28 +100,42 @@ export function SiteFooter() {
 
           {/* Contact */}
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold tracking-[0.14em] uppercase">
+            <p className="text-xs font-semibold tracking-[0.14em] text-white/60 uppercase">
               Contact
             </p>
             <a
               href="mailto:coachadrianding@maximumimpact.online"
-              className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm break-all transition-colors"
+              className="flex items-center gap-2.5 text-base text-white/60 transition-colors hover:text-white sm:text-lg"
             >
-              <Mail className="size-4 shrink-0" />
-              coachadrianding@maximumimpact.online
+              <Mail className="size-5 shrink-0" />
+              {/* Clean, natural breaks on mobile instead of `break-all`
+                  chopping mid-word wherever it happens to run out of room;
+                  `sm:` and up keep the original single unbroken line. */}
+              <span className="sm:hidden">
+                coachadrianding
+                <br />
+                @maximumimpact
+                <br />
+                .online
+              </span>
+              <span className="hidden break-all sm:inline">
+                coachadrianding@maximumimpact.online
+              </span>
             </a>
             <a
               href="tel:+639209007709"
-              className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
+              className="flex items-center gap-2.5 text-sm text-white/60 transition-colors hover:text-white sm:text-lg"
             >
-              <Phone className="size-4 shrink-0" />
+              <Phone className="size-5 shrink-0" />
               0920 900 7709
             </a>
           </div>
         </div>
+      </div>
 
-        <div className="border-border/70 mt-14 flex flex-col items-start justify-between gap-3 border-t pt-6 sm:flex-row sm:items-center">
-          <p className="text-muted-foreground text-xs">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-center sm:flex-row sm:items-center sm:text-left lg:mt-14">
+          <p className="text-xs text-white/55">
             © {new Date().getFullYear()} Coach Adrian Ding · Maximum Impact PH.
             All rights reserved.
           </p>
@@ -129,10 +143,31 @@ export function SiteFooter() {
             href="https://iridel.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground/40 hover:text-muted-foreground/70 text-xs transition-colors"
+            className="text-xs text-white/55 transition-colors hover:text-white/80"
           >
             Demo by iridel.com
           </a>
+        </div>
+      </div>
+
+      {/* Big wordmark — one line on desktop; splits into "Adrian" / "Ding" on
+          mobile, sized large enough to run past the screen edges and crop
+          against the wrapper's `overflow-hidden`, default letter-spacing
+          (no per-letter stretch — that's been dropped). */}
+      <div aria-hidden className="w-full overflow-hidden select-none">
+        <p
+          className="hidden w-full text-center font-serif leading-[0.78] whitespace-nowrap text-white sm:block"
+          style={{ fontSize: "clamp(90px, 19vw, 320px)" }}
+        >
+          Adrian Ding
+        </p>
+        <div
+          className="flex w-full flex-col items-center text-center font-serif leading-[0.78] whitespace-nowrap text-white sm:hidden"
+        >
+          <p style={{ fontSize: "clamp(100px, 34vw, 220px)" }}>Adrian</p>
+          {/* "Ding" is 4 letters vs "Adrian"'s 6, so it needs a noticeably
+              bigger size (~1.5×) to reach the same left/right edges. */}
+          <p style={{ fontSize: "clamp(150px, 51vw, 330px)" }}>Ding</p>
         </div>
       </div>
     </footer>

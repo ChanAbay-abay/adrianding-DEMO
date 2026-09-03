@@ -3,36 +3,45 @@ import { Reveal } from "@/app/_components/reveal"
 import { SplitReveal } from "@/app/_components/split-reveal"
 
 /**
- * About — certification / accreditation logos.
+ * About — certifications & accreditations as a single logo row, matching the
+ * "in great company" treatment: bare marks, no card chrome.
  * TODO: confirm the exact accrediting-body names and years (AET / CPD) with the
  * client; the rest are from the PRD.
  */
 
-const CERTS = [
+const CERTS: {
+  name: string
+  line: string
+  src: string
+  /** Backs the mark with a circle in this color — INSEAD's wordmark has no
+   *  card of its own like the others, so it floats without one otherwise. */
+  circleBg?: string
+}[] = [
   {
     name: "Peak Potentials",
     line: "Train the Trainer certification — T. Harv Eker, 2004",
-    src: "/images/trainer-logo.png",
+    src: "/images/logos/trainer-logo.png",
   },
   {
     name: "Genos International",
     line: "Emotional Intelligence coaching practice, 2017",
-    src: "/images/genos-logo.png",
+    src: "/images/logos/genos-logo.png",
   },
   {
     name: "INSEAD",
     line: "Executive Education programme, 2021",
-    src: "/images/insead-logo.png",
+    src: "/images/logos/insead-logo.png",
+    circleBg: "#eaecef",
   },
   {
     name: "AET",
     line: "Accredited trainer",
-    src: "/images/aet-logo.png",
+    src: "/images/logos/aet-logo.png",
   },
   {
     name: "CPD Council",
     line: "Accredited professional-development provider",
-    src: "/images/cpd-logo.png",
+    src: "/images/logos/cpd-logo.svg",
   },
 ]
 
@@ -46,32 +55,63 @@ export function AboutCertifications() {
         Certifications &amp; accreditations
       </SplitReveal>
 
-      <Reveal
-        stagger={0.08}
-        className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {CERTS.map((c) => (
-          <div key={c.name} className="flex items-start gap-4">
-            <div className="bg-muted/60 relative size-16 shrink-0 rounded-sm">
-              <Image
-                src={c.src}
-                alt={c.name}
-                fill
-                sizes="64px"
-                className="object-contain p-2"
-              />
-            </div>
-            <div>
-              <h3 className="text-foreground font-semibold tracking-tight">
-                {c.name}
-              </h3>
-              <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-                {c.line}
-              </p>
-            </div>
-          </div>
-        ))}
-      </Reveal>
+      <div className="mt-16 flex flex-col gap-8 lg:gap-14">
+        <Reveal
+          stagger={0.08}
+          className="flex flex-wrap items-start justify-center gap-x-12 gap-y-8 sm:gap-x-16 lg:gap-y-14"
+        >
+          {CERTS.slice(0, 3).map((c) => (
+            <CertCard key={c.name} cert={c} />
+          ))}
+        </Reveal>
+        <Reveal
+          stagger={0.08}
+          className="flex flex-wrap items-start justify-center gap-x-12 gap-y-8 sm:gap-x-16 lg:gap-y-14"
+        >
+          {CERTS.slice(3).map((c) => (
+            <CertCard key={c.name} cert={c} />
+          ))}
+        </Reveal>
+      </div>
     </section>
+  )
+}
+
+function CertCard({ cert }: { cert: (typeof CERTS)[number] }) {
+  return (
+    <div className="flex w-44 flex-col items-center gap-5 text-center sm:w-56">
+      <div className="relative flex h-28 w-full items-center justify-center sm:h-32">
+        {cert.circleBg ? (
+          <div
+            className="relative size-28 shrink-0 rounded-full sm:size-32"
+            style={{ backgroundColor: cert.circleBg }}
+          >
+            <Image
+              src={cert.src}
+              alt={cert.name}
+              fill
+              sizes="128px"
+              className="object-contain p-4"
+            />
+          </div>
+        ) : (
+          <Image
+            src={cert.src}
+            alt={cert.name}
+            fill
+            sizes="224px"
+            className="object-contain"
+          />
+        )}
+      </div>
+      <div>
+        <h3 className="font-serif text-lg tracking-[-0.01em] sm:text-xl">
+          {cert.name}
+        </h3>
+        <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
+          {cert.line}
+        </p>
+      </div>
+    </div>
   )
 }

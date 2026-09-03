@@ -109,7 +109,7 @@ export function EmailTemplates() {
 
             <div className="bg-brand flex items-center gap-2.5 px-6 py-5">
               <Image
-                src="/images/ad-logo-white.png"
+                src="/images/logos/ad-logo-white.svg"
                 alt=""
                 width={72}
                 height={72}

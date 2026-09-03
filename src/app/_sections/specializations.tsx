@@ -1,45 +1,67 @@
-import { Reveal } from "@/app/_components/reveal"
 import { SplitReveal } from "@/app/_components/split-reveal"
-import { SPECIALIZATIONS } from "@/lib/specializations"
+import { Reveal } from "@/app/_components/reveal"
+import {
+  SpecRevealCards,
+  type SpecCard,
+} from "@/app/_components/spec-reveal-cards"
+import {
+  SPECIALIZATIONS,
+  SPECIALIZATION_IMAGES,
+  SPECIALIZATION_IMAGE_ALTS,
+  SPECIALIZATION_IMAGE_POSITIONS,
+} from "@/lib/specializations"
 
 /**
- * Landing — the six areas Adrian goes deep on. Teaser version; the About page
- * carries the expanded copy.
+ * Landing — the six areas Adrian goes deep on. Each is a reveal card: at rest
+ * it's a plain editorial row (sans-serif title + one line of copy, a hairline
+ * between), unchanged from before; hovering a row (or tapping, on touch)
+ * expands it and wipes a photo in. Sits on the muted ground between the
+ * credibility block and the workshop/corporate fork.
  */
+
+const CARDS: SpecCard[] = SPECIALIZATIONS.map((spec) => ({
+  key: spec.key,
+  title: spec.title,
+  blurb: spec.blurb,
+  image: SPECIALIZATION_IMAGES[spec.key],
+  imageAlt: SPECIALIZATION_IMAGE_ALTS[spec.key],
+  imagePosition: SPECIALIZATION_IMAGE_POSITIONS[spec.key],
+}))
 
 export function LandingSpecializations() {
   return (
     <section className="bg-muted/40 py-24 lg:py-36">
-      <div className="mx-auto max-w-7xl px-6 sm:px-8">
-        <SplitReveal
-          rule
-          className="max-w-3xl font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
-        >
-          Six areas Adrian goes deep on
-        </SplitReveal>
-        <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-relaxed lg:text-xl">
-          Two decades of the same work, refined into six programs companies book
-          again and again.
-        </p>
+      <div className="mx-auto w-full max-w-7xl px-6 sm:px-8">
+        <div className="lg:grid lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:gap-16 xl:gap-20">
+          {/* Left rail — heading + framing line, held in view while the
+              card stack on the right scrolls past. */}
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <SplitReveal
+              rule
+              className="font-serif text-[2.5rem] leading-[1.05] tracking-[-0.02em] lg:text-[3rem]"
+            >
+              Six programs,
+              <br />
+              <span className="text-brand">two decades</span> deep
+            </SplitReveal>
+            <p className="text-muted-foreground mt-6 text-lg leading-relaxed">
+              Every engagement is built from these — run for a boardroom, a
+              conference stage, or a room of individual professionals.
+            </p>
+          </div>
 
-        <Reveal
-          stagger={0.09}
-          className="mt-16 grid gap-x-12 gap-y-14 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {SPECIALIZATIONS.map((s) => (
-            <div key={s.key}>
-              <div className="bg-brand/10 text-brand inline-flex rounded-md p-3">
-                <s.icon className="size-5" aria-hidden />
-              </div>
-              <h3 className="text-foreground mt-5 text-lg font-semibold tracking-tight">
-                {s.title}
-              </h3>
-              <p className="text-muted-foreground mt-2.5 leading-relaxed">
-                {s.blurb}
-              </p>
-            </div>
-          ))}
-        </Reveal>
+          {/* Right — the six reveal cards. A horizontal snap rail below `lg`
+              (six stacked cards ran ~2 phone screens on their own), the
+              vertical expand-on-hover stack from `lg` up. `-mx-6`/`px-6`
+              lets the rail bleed to the viewport edges while its first card
+              still lines up with the section gutter. */}
+          <Reveal
+            stagger={0.08}
+            className="no-scrollbar -mx-6 mt-12 flex snap-x snap-mandatory scroll-px-6 gap-3 overflow-x-auto px-6 pb-1 sm:-mx-8 sm:scroll-px-8 sm:px-8 lg:mx-0 lg:mt-0 lg:snap-none lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0"
+          >
+            <SpecRevealCards items={CARDS} />
+          </Reveal>
+        </div>
       </div>
     </section>
   )

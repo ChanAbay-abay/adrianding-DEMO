@@ -1,20 +1,36 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { Reveal } from "@/app/_components/reveal"
 import { SplitReveal } from "@/app/_components/split-reveal"
+import SocialCards from "@/components/ui/card-fan-carousel"
 import { GALLERY_EVENTS } from "@/lib/gallery"
 
 /**
- * Landing — a look inside recent rooms. Links through to the full gallery.
- * TODO: images are the three lifestyle stand-ins until real event photos land.
+ * A look inside recent rooms, as a GSAP card fan. Each card links through to
+ * its event page; the whole thing links on to the full gallery. 6 events sit
+ * under the carousel's MAX_VISIBLE (7), so it fans them all with no pager.
+ * Own data import, but heading/subtext are overridable — rendered on the
+ * landing page with its default "Inside the room" copy, and reused on
+ * `/workshops` with "Past events" copy, standing in for that page's removed
+ * past-workshops list.
+ * TODO: covers reuse the available Adrian / stage stand-ins until real event
+ * photo sets land.
  */
 
-export function LandingGalleryPreview() {
-  const events = GALLERY_EVENTS.slice(0, 3)
+export function LandingGalleryPreview({
+  heading = "Inside the room",
+  subtext = "A few of the workshops and keynotes from the last two years.",
+}: {
+  heading?: string
+  subtext?: string
+}) {
+  const cards = GALLERY_EVENTS.map((e) => ({
+    imgUrl: e.cover,
+    alt: e.name,
+    linkUrl: "/gallery",
+  }))
 
   return (
-    <section className="bg-muted/40 py-24 lg:py-36">
+    <section className="bg-background py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
@@ -22,10 +38,10 @@ export function LandingGalleryPreview() {
               rule
               className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
             >
-              Inside the room
+              {heading}
             </SplitReveal>
             <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-relaxed lg:text-xl">
-              A few of the workshops and keynotes from the last two years.
+              {subtext}
             </p>
           </div>
           <Link
@@ -36,36 +52,19 @@ export function LandingGalleryPreview() {
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
+      </div>
 
-        <Reveal stagger={0.1} className="mt-14 grid gap-10 md:grid-cols-3">
-          {events.map((e) => (
-            <Link
-              key={e.slug}
-              href={`/gallery/${e.slug}`}
-              className="group block"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <Image
-                  src={e.cover}
-                  alt={e.name}
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                />
-              </div>
-              <p className="text-muted-foreground mt-5 text-xs tracking-[0.1em] uppercase">
-                {e.date} · {e.location}
-              </p>
-              <h3 className="text-foreground group-hover:text-brand mt-2 text-xl font-semibold tracking-tight transition-colors">
-                {e.name}
-              </h3>
-            </Link>
-          ))}
-        </Reveal>
+      {/* Full-bleed so the fan can spread; `overflow-x-clip` masks the fly-in
+          and hover push without turning this into a scroll container (which
+          `overflow-hidden` would — and that breaks the page's sticky hero). */}
+      <div className="mt-2 overflow-x-clip lg:mt-4">
+        <SocialCards cards={cards} />
+      </div>
 
+      <div className="mx-auto flex max-w-7xl justify-center px-6 sm:hidden">
         <Link
           href="/gallery"
-          className="text-brand mt-12 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.12em] uppercase sm:hidden"
+          className="text-brand mt-6 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.12em] uppercase"
         >
           All events
           <ArrowRight className="size-4" />

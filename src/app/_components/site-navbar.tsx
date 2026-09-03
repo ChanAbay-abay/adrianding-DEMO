@@ -3,7 +3,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
+import { motion } from "framer-motion"
 import { MenuIcon } from "lucide-react"
 import {
   Sheet,
@@ -13,95 +14,126 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { useNavbarTheme } from "@/app/_lib/use-navbar-theme"
 import { cn } from "@/lib/utils"
 
 /**
- * The one navbar for the whole site. Self-contained — every page renders
- * `<SiteNavbar />` (inner routes) or `<SiteNavbar overHero />` (landing, where
- * it floats transparent over the dark pinned hero and turns solid once the
- * page content rises over it). Links always go to real routes, never in-page
- * anchors.
+ * The one navbar for the whole site — identical everywhere. The only thing
+ * that ever differs is where it starts: every page just renders
+ * `<SiteNavbar />` and it's stuck to the top from the first frame. The
+ * landing page is the sole exception, and only for *position* — it passes
+ * `startBelowHero`, which drops the bar to the hero's bottom edge with a
+ * negative top margin so it rides up into the sticky position as the visitor
+ * scrolls past the hero, instead of starting pinned. Same logo, same links,
+ * same CTA, same everything else. (cf. tasks/lessons.md 2026-08-09 — sticky,
+ * not a JS position state-machine. Sticky, not a scroll container: an
+ * ancestor with `overflow: hidden` — never used here, only `overflow-x: clip`
+ * — would make the page a scroll container and the bar would ride away with
+ * the content instead of staying pinned.)
+ *
+ * The surface adapts to whatever section sits behind it: `useNavbarTheme`
+ * hit-tests the element under the bar and, if that element (or an ancestor)
+ * carries `data-navbar-theme="dark"`, the bar switches to its dark treatment —
+ * solid black, white logo, light link text. Everything else is the default
+ * light bar (solid white, dark logo/links). Both surfaces are fully opaque —
+ * no translucency/backdrop-blur — so a mid-scroll-restore reload never reads
+ * as a gray blend of the two (cf. tasks/lessons.md 2026-09-03).
  *
  * The single CTA is workshop-forward on purpose: growing public-workshop
- * registrations is the goal (corporate is already the bigger channel).
+ * registrations is the goal (corporate is already the bigger channel). It
+ * points at the fork (`#which-path` on <LandingPaths>, landing page only)
+ * rather than straight at `/workshops` — from any other page it's `/` +
+ * hash, so it lands on the homepage already scrolled to the choice.
  */
 
 const LINKS = [
   { href: "/about", label: "About" },
-  { href: "/gallery", label: "Gallery" },
   { href: "/workshops", label: "Workshops" },
   { href: "/corporate-training", label: "Corporate Training" },
+  { href: "/gallery", label: "Gallery" },
 ]
 
-export function SiteNavbar({ overHero = false }: { overHero?: boolean }) {
+const CTA_HREF = "/#which-path"
+const CTA_LABEL = "Train with Me"
+
+type SiteNavbarProps = {
+  /** Landing page only. Starts the bar at the hero's bottom edge (negative
+   * top margin) instead of the viewport top. */
+  startBelowHero?: boolean
+  /** First-paint guess for the bar's theme, e.g. `"dark"` when the page opens
+   * on a section tagged `data-navbar-theme="dark"` (the landing/About hero).
+   * Held as-is until the first scroll event — `useNavbarTheme`'s hit-test runs
+   * on mount at scroll 0, before anything is actually behind a normal
+   * (non-overlapping) bar, so its first read always resolves to "light" and
+   * would otherwise stomp this guess for a single frame. */
+  initialTheme?: "light" | "dark"
+  /** Landing page only. Hooks the bar into the hero's GSAP intro timeline
+   * (`.he-nav`) — see hero-editorial.tsx. */
+  className?: string
+}
+
+export function SiteNavbar({
+  startBelowHero,
+  initialTheme,
+  className,
+}: SiteNavbarProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [solid, setSolid] = useState(!overHero)
-
-  // Over the hero: stay transparent until the page's `.hero-curtain` has risen
-  // far enough that its top edge reaches the bottom of the navbar, then commit
-  // to the solid treatment. IntersectionObserver can't express "top edge at a
-  // fixed offset" cleanly (it fires the moment the tall curtain enters from the
-  // bottom, a full viewport of scroll too early), so measure the edge directly.
-  useEffect(() => {
-    if (!overHero) {
-      setSolid(true)
+  const headerRef = useRef<HTMLElement>(null)
+  const detected = useNavbarTheme(
+    headerRef,
+    initialTheme ?? (startBelowHero ? "dark" : "light")
+  )
+  const [scrolled, setScrolled] = useState(false)
+  // Layout effect: on a reload where the browser restores a mid-page scroll
+  // position, `window.scrollY > 0` must flip `scrolled` before first paint —
+  // a plain effect fires a tick late and paints one frame of `initialTheme`
+  // (e.g. a dark hero guess) over whatever's actually behind the bar at that
+  // scroll position (cf. tasks/lessons.md 2026-09-03).
+  useLayoutEffect(() => {
+    if (!initialTheme || window.scrollY > 0) {
+      setScrolled(true)
       return
     }
-    const curtain = document.querySelector(".hero-curtain")
-    if (!curtain) {
-      setSolid(true)
-      return
-    }
-    const navH = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue("--nav-h")
-    )
-    const navHpx = Number.isFinite(navH) ? navH * 16 : 64
-    let frame = 0
-    const update = () => {
-      frame = 0
-      setSolid(curtain.getBoundingClientRect().top <= navHpx)
-    }
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-    update()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    window.addEventListener("resize", onScroll)
-    return () => {
-      if (frame) cancelAnimationFrame(frame)
-      window.removeEventListener("scroll", onScroll)
-      window.removeEventListener("resize", onScroll)
-    }
-  }, [overHero])
+    const onScroll = () => setScrolled(true)
+    window.addEventListener("scroll", onScroll, { passive: true, once: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [initialTheme])
+  const dark = (scrolled ? detected : initialTheme) === "dark"
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href)
 
-  const linkColor = (active: boolean) =>
-    solid
-      ? active
-        ? "text-brand"
-        : "text-foreground/70 hover:text-foreground"
-      : active
-        ? "text-white"
-        : "text-white/70 hover:text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.7)]"
+  // Next's App Router only auto-scrolls to a URL hash on an actual
+  // navigation — clicking a same-page `Link` (already on `/`) just rewrites
+  // the hash and leaves scroll position alone. Intercept and scroll by hand
+  // whenever we're already on the target page.
+  const handleCtaClick = (e: React.MouseEvent) => {
+    if (pathname !== "/") return
+    e.preventDefault()
+    document
+      .getElementById("which-path")
+      ?.scrollIntoView({ behavior: "smooth" })
+    window.history.replaceState(null, "", CTA_HREF)
+  }
 
   return (
     <header
+      ref={headerRef}
       className={cn(
-        "top-0 z-50 h-(--nav-h) w-full transition-colors duration-300",
-        // Over the hero it floats (the pinned hero is behind it); everywhere
-        // else it's a normal sticky bar that reserves its own space.
-        overHero ? "fixed" : "sticky",
-        solid
-          ? "border-border/60 bg-background/85 supports-[backdrop-filter]:bg-background/70 border-b backdrop-blur"
-          : "bg-transparent"
+        // z-60: above the shared Sheet's overlay (z-50, portalled to the end
+        // of <body> so it would otherwise paint over this sticky header at
+        // equal z-index) — the mobile drawer must dim the page, not hide the
+        // navbar itself, since the trigger/close button live in this header.
+        "sticky top-0 z-60 h-(--nav-h) w-full border-b transition-colors duration-300",
+        startBelowHero && "mt-[calc(var(--nav-h)*-1)]",
+        dark ? "border-white/6 bg-black" : "border-black/6 bg-white",
+        className
       )}
     >
       <nav
         aria-label="Main"
-        className="flex h-full w-full items-center justify-between px-6 sm:px-10"
+        className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-6 sm:px-10"
       >
         <Link
           href="/"
@@ -110,7 +142,9 @@ export function SiteNavbar({ overHero = false }: { overHero?: boolean }) {
         >
           <Image
             src={
-              solid ? "/images/ad-logo-black.png" : "/images/ad-logo-white.png"
+              dark
+                ? "/images/logos/ad-logo-white.svg"
+                : "/images/logos/ad-logo-black.svg"
             }
             alt="Adrian Ding monogram"
             width={88}
@@ -119,87 +153,138 @@ export function SiteNavbar({ overHero = false }: { overHero?: boolean }) {
           />
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden items-center gap-9 md:flex">
+        {/* Desktop links + CTA — untouched from the pre-mobile-pass layout, so
+            the bar's `justify-between` spacing at `md`+ (Logo / this cluster,
+            two flex children) stays pixel-identical to before. */}
+        <div className="hidden items-center gap-7 md:flex">
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               aria-current={isActive(l.href) ? "page" : undefined}
               className={cn(
-                "text-[0.7rem] font-semibold tracking-[0.16em] uppercase transition-colors",
-                linkColor(isActive(l.href))
+                "text-[0.95rem] font-medium transition-colors",
+                isActive(l.href)
+                  ? "text-brand"
+                  : dark
+                    ? "text-white/75 hover:text-white"
+                    : "text-foreground/70 hover:text-foreground"
               )}
             >
               {l.label}
             </Link>
           ))}
-          <Button
-            asChild
-            variant="brand"
-            size="sm"
-            className={cn(!solid && "shadow-lg")}
+          <motion.div
+            whileHover={{ scale: 1.12 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <Link href="/workshops">Register</Link>
-          </Button>
+            <Button
+              asChild
+              variant="brand"
+              size="default"
+              className="nav-cta ml-1 px-5 shadow-none"
+            >
+              <Link href={CTA_HREF} onClick={handleCtaClick}>
+                {CTA_LABEL}
+              </Link>
+            </Button>
+          </motion.div>
         </div>
 
-        {/* Mobile trigger */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
+        {/* Mobile — CTA always visible next to the trigger, never tucked away
+            behind the drawer alone. */}
+        <div className="flex items-center gap-2 md:hidden">
+          <motion.div
+            whileHover={{ scale: 1.12 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
             <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Open menu"
+              asChild
+              variant="brand"
+              size="sm"
+              className="nav-cta h-9 px-4 shadow-none"
+            >
+              <Link href={CTA_HREF} onClick={handleCtaClick}>
+                {CTA_LABEL}
+              </Link>
+            </Button>
+          </motion.div>
+
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                className={cn(
+                  dark && "text-white hover:bg-white/10 hover:text-white"
+                )}
+              >
+                <MenuIcon className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              // Radix restores focus to the trigger button on close by
+              // default. That button lives in this `sticky` header, and
+              // some mobile browsers respond to the focus restore by
+              // scrolling the document to bring it "into view", which reads
+              // as the page jumping to the top after closing the drawer
+              // (most visible on outside-click dismiss). Not a form, so
+              // skip the auto-focus entirely.
+              onCloseAutoFocus={(e) => e.preventDefault()}
               className={cn(
-                !solid && "text-white hover:bg-white/10 hover:text-white"
+                // z-70: above this header's z-60 (see the header className
+                // comment) — the drawer still needs to slide in front of the
+                // now-visible-through-the-scrim navbar, not behind it.
+                "z-70 w-72",
+                dark &&
+                  "border-white/10 bg-black text-white **:data-[slot=sheet-close]:text-white"
               )}
             >
-              <MenuIcon className="size-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-72">
-            <SheetTitle asChild>
-              <Link
-                href="/"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5"
-              >
-                <Image
-                  src="/images/ad-logo-black.png"
-                  alt="Adrian Ding monogram"
-                  width={88}
-                  height={88}
-                  className="h-9 w-9 object-contain"
-                />
-                <span className="sr-only">Adrian Ding</span>
-              </Link>
-            </SheetTitle>
-            <div className="mt-6 flex flex-col gap-1">
-              {LINKS.map((l) => (
-                <SheetClose asChild key={l.href}>
-                  <Link
-                    href={l.href}
-                    aria-current={isActive(l.href) ? "page" : undefined}
-                    className={cn(
-                      "rounded-sm px-2 py-3 text-xs font-semibold tracking-[0.16em] uppercase transition-colors",
-                      isActive(l.href)
-                        ? "text-brand"
-                        : "text-foreground/80 hover:bg-muted/60 hover:text-foreground"
-                    )}
-                  >
-                    {l.label}
-                  </Link>
-                </SheetClose>
-              ))}
-            </div>
-            <SheetClose asChild>
-              <Button asChild variant="brand" size="lg" className="mt-6 w-full">
-                <Link href="/workshops">Register for a workshop</Link>
-              </Button>
-            </SheetClose>
-          </SheetContent>
-        </Sheet>
+              <SheetTitle asChild>
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5"
+                >
+                  <Image
+                    src={
+                      dark
+                        ? "/images/logos/ad-logo-white.svg"
+                        : "/images/logos/ad-logo-black.svg"
+                    }
+                    alt="Adrian Ding monogram"
+                    width={88}
+                    height={88}
+                    className="h-9 w-9 object-contain"
+                  />
+                  <span className="sr-only">Adrian Ding</span>
+                </Link>
+              </SheetTitle>
+              <div className="mt-6 flex flex-col gap-1">
+                {LINKS.map((l) => (
+                  <SheetClose asChild key={l.href}>
+                    <Link
+                      href={l.href}
+                      aria-current={isActive(l.href) ? "page" : undefined}
+                      className={cn(
+                        "rounded-sm px-2 py-3 text-[0.95rem] font-medium transition-colors",
+                        isActive(l.href)
+                          ? "text-brand"
+                          : dark
+                            ? "text-white/80 hover:bg-white/10 hover:text-white"
+                            : "text-foreground/80 hover:bg-muted/60 hover:text-foreground"
+                      )}
+                    >
+                      {l.label}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </nav>
     </header>
   )

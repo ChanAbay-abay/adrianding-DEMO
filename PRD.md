@@ -6,26 +6,26 @@
 
 ## Client
 
-| Field    | Value |
-| -------- | ----- |
-| Name     | Coach Adrian Ding |
-| Slug     | adrian-ding |
+| Field    | Value                                                     |
+| -------- | --------------------------------------------------------- |
+| Name     | Coach Adrian Ding                                         |
+| Slug     | adrian-ding                                               |
 | Industry | Corporate Training, Leadership Coaching, Keynote Speaking |
-| Website  | adrianding.com (existing, live — this is a remodel) |
+| Website  | adrianding.com (existing, live — this is a remodel)       |
 
 ---
 
 ## Brand
 
-| Field      | Value |
-| ---------- | ----- |
-| Primary    | `#980F09` — deep maroon/wine red |
-| Secondary  | `#222222` — near-black |
-| Neutral    | `#FFFFFF` — white |
-| Tone       | Classy, sophisticated, "GQ meets Architectural Digest" — relatable Boomers to Gen Z |
-| Serif font | The Seasons (logo, key words/pull quotes) |
-| Body font  | Red Hat Display |
-| Accent font| Abramo (special callouts only) |
+| Field       | Value                                                                               |
+| ----------- | ----------------------------------------------------------------------------------- |
+| Primary     | `#980F09` — deep maroon/wine red                                                    |
+| Secondary   | `#222222` — near-black                                                              |
+| Neutral     | `#FFFFFF` — white                                                                   |
+| Tone        | Classy, sophisticated, "GQ meets Architectural Digest" — relatable Boomers to Gen Z |
+| Serif font  | The Seasons (logo, key words/pull quotes)                                           |
+| Body font   | Red Hat Display                                                                     |
+| Accent font | Abramo (special callouts only)                                                      |
 
 ### Competitive Differentiation
 
@@ -36,7 +36,7 @@
 | Anthony Pangilinan | anthonypangilinan.com | Media/TV personality branding, storytelling bio |
 | Jayson Lo | jaysonlo.com | Book/framework-driven funnel (his "YOUnique" system), free worksheet as lead magnet |
 | Boris Joaquin | borisjoaquin.com | Multi-channel hub (podcast + articles), "top ranked speaker" credential stacking |
-| The Josh | *unclear — pending FB page link from Chan* | — |
+| The Josh | _unclear — pending FB page link from Chan_ | — |
 | John Maxwell Team (Maxwell Leadership PH) | maxwellleadership.com.ph | Franchise/certification funnel, event-countdown urgency, borrowed global authority |
 
 **Build note:** these mostly read as static, credential-heavy, template-driven. That's the gap to exploit — none of them move like a modern funnel site.
@@ -67,8 +67,13 @@
 
 **The one thing this demo must communicate:** Adrian Ding's 20+ years training 20,000+ leaders across HSBC, Wipro, Petron, and more, now has a digital front door built to convert both corporate inquiries and public workshop signups.
 
-**Section flow:**
-Navbar → Hero → Stats → About/Bio → Areas of Specialization → Companies Served (marquee) → Successful Events Gallery → Testimonials → Workshops (open for registration) → Forms (Corporate Training + Workshop) → CTA/Footer
+**Section flow (landing page)** — reworked 2026-09-01 for a single-decision funnel
+(audit follow-up); `page.tsx` is the source of truth:
+Hero (one CTA, scrolls to the fork) → Quote → About teaser (the person) →
+Companies Served (marquee) + Statistics (one credibility block, shared ground) →
+Areas of Specialization (typographic list) → **Which path is yours?** (`#which-path`
+— workshops vs corporate training, the page's only CTA) → Workshops open for
+registration → Testimonials → Gallery preview → Footer
 
 ---
 
@@ -105,23 +110,43 @@ Google login/signup is **staff-only**, for CRM/CMS access (managing form submiss
 
 ## Page 1: Landing Page
 
-Build top to bottom:
+**Navbar** (global, not a numbered beat) — Logo (AD/Adrian Ding), links: About, Gallery, Workshops, Corporate Training, Contact. The editorial hero renders its own split nav (minimal top row that scrolls away + main link bar that pins to top for the rest of the page); no separate `<SiteNavbar>` on this page.
 
-1. **Navbar** (global) — Logo (AD/Adrian Ding), links: About, Gallery, Workshops, Corporate Training, Contact. Sticky on scroll.
-2. **Hero** — Scroll-locked two-stage GQ-cover narrative (`_sections/hero.tsx`, tuning in `_sections/hero-scroll.ts`). A `position: sticky` stage pins for ~3 screens; `scrollYProgress` → `p` drives every layer, so it also runs in reverse on scroll-up. Proximity scroll-snap clicks stage 1 / stage 2 into place; the released state snaps on `.hero-curtain`.
-   - **Stage 1** — centred portrait (colour); giant dark-red "Adrian" (upper-left) / "Ding" (dropped, upper-right) wordmark, stacked high; roles list bottom-left (Corporate Trainer · Leadership Development Coach · Keynote Speaker · Inspirational Writer); credential stats bottom-right (20+ years · 20,000+ professionals trained · Top 500 companies in the Philippines); two large CTAs bottom-right — Corporate Training (outline, → `/corporate-training#inquiry`) / Workshops (deep maroon, → `/workshops`).
-   - **Transition** (`NARRATIVE_VH`, short) — "Ding" rises level with "Adrian"; wordmark warms dark-red → brand maroon; portrait cross-fades to a grayscale cut; roles + stats clear; credential cover-lines fade in bigger, no logo boxes — orgs left (CEO Maximum Impact · Founder & Lead Coach, AET · Founder, CPD), dated timeline right (2021 INSEAD · 2017 Genos · 2004 T. Harv Eker); background scrim eases.
-   - **Dwell** (`STAGE2_HOLD_VH`) — stage 2 sits fully formed, then the rest of the page slides up over the pinned hero and snaps flush (`.hero-curtain` in `globals.css`, `-100vh` = `CURTAIN_VH`).
-   - Nav is the global `<SiteNavbar overHero />` (page.tsx), transparent over the hero → solid once the curtain rises. The hero carries no nav of its own.
-   - Cursor parallax stacks depth: bg drifts against the pointer, wordmark barely moves with it, portrait travels most (pointer-fine only). Reduced motion → static resolved stage-2 composition, no pin, curtain margin reset.
-   - **Mobile:** functional but a dedicated pass is owed — cover-line columns stack, wordmark can kiss the right edge, roles/stats sit over the portrait.
-3. **Stats bar** — 20+ Years in the Training Circuit | 20,000+ Professionals Trained | Top 500 PH Companies Trained | 9+* Industries Served (`*` placeholder pending confirmation)
-4. **CTA** — "Ready to build a winning culture?" Two paths: Inquire for Corporate Training / Register for a Workshop
-5. **Links to Workshop Page / Corporate Training** — quick-nav cards, one per path, funneling to their respective pages
-6. **Companies Served by category** — animated/moving marquee, categorized (Multi-nationals, Mega-corporations, Finance, Real Estate, Hotels & Resorts, Food & Retail, SMEs & Family Businesses, Schools & Universities, Associations)
-7. **Areas of Specialization** (capabilities grid, 6 items) — Leadership Training & Development, Inspirational Keynotes, Building Winning Cultures & High-Performing Teams, Effective & Compelling Communications, Train the Trainer + Coach the Coaches, Corporate Imaging & Personal Branding
-8. **Testimonials** — carousel/slider, all 8 (Wipro, Global Payments, Rose Pharmacy, Knowles, Global Pacific, HSBC, PETDA, Rotary International). Full quotes in Coach_Adrian_Ding_Website_2025.pdf — copy verbatim from source, don't paraphrase.
-9. **Footer** (global) — see Global Components below
+Build top to bottom (matches `page.tsx` as of the 2026-09-01 funnel rework):
+
+1. **Hero** — Editorial GQ-cover (`_sections/hero-editorial.tsx`). One full-screen `bg-[#141414]` frame: mono background plate + light scrim/vignette, cut-out portrait right-of-centre, giant serif "Adrian Ding" wordmark parked across the vertical middle with a quiet static role line under it (Leadership Development Coach · Corporate Trainer · Keynote Speaker · Inspirational Writer) and social icons below. GSAP intro timeline (plate scale-in, portrait rise, wordmark rise, chrome stagger), then static; cursor parallax on bg/portrait (pointer-fine only). No scroll pin. The hero renders its **own** pinned link bar (About · Workshops · Corporate Training · Gallery + one "Train with Me" CTA that scrolls to `#which-path`); mobile collapses the links into a right-side Sheet. Reduced motion → composition painted immediately. Mobile still owed a dedicated pass (wordmark can kiss the right edge at ≤402px).
+2. **Quote** — video-transition beat (`_sections/quote-reveal.tsx`). An opaque cream sheet rides UP over the held (sticky) hero, pins for ~35vh of scroll, and writes the belief line word by word — accent words blooming into brand red — then releases. Line: "Better people, lead to better companies. And better companies contribute to a better country." Pure CSS sticky + scroll-linked per-word opacity, no JS pin. Reduced motion → static centred quote.
+3. **About teaser** — the face-forward beat: portrait (`ad-photo-1.png`), the deck line "Two things I love: coffee, and developing people.", two lines on who he is (CEO Maximum Impact PH, 20+ years), link → `/about`. The belief ladder itself is **not** repeated here — the Quote section immediately above just wrote it.
+4. **Companies Served** ("You're in great company") — filterable moving marquee (`_components/companies-marquee.tsx`). Category pills filter the wall; "All industries" resets. Row count adapts (3 / 2 / 1). Logos render as full-colour marks; clients without artwork render as a name chip with a footnote count. One Pause/Play control stops every row (WCAG 2.2.2); no per-logo tooltips. Full roster in **Companies Served — Roster** below.
+5. **Statistics** — 20+ Years in the Training Circuit | 20,000+ Professionals Trained | Top 500 PH Companies Trained | 9+\* Industries Served (`*` placeholder pending confirmation). Sits on the **same ground as Companies Served with no divider**, so the roster and the figures read as one credibility block.
+6. **Areas of Specialization** — plain editorial list (`_sections/specializations.tsx`), 6 items, serif title + one line of copy each, hairline between, no photos / no hover slider / no section numbers, fully readable without a pointer: Leadership Training & Development, Inspirational Keynotes, Building Winning Cultures & High-Performing Teams, Effective & Compelling Communications, Train the Trainer + Coach the Coaches, Corporate Imaging & Personal Branding.
+7. **Which path is yours?** (`_sections/paths.tsx`, `id="which-path"`) — the fork and the page's **only** CTA target. Two full-bleed photo cards: workshops (individuals) / corporate training (companies), with a hover take-over on desktop. The hero's "Train with Me" button scrolls here.
+8. **Workshops open for registration** — the concrete next step for the individual lane, straight after the fork. Cards for each open workshop → detail page.
+9. **Testimonials** — carousel/slider, all 8 (Wipro, Global Payments, Rose Pharmacy, Knowles, Global Pacific, HSBC, PETDA, Rotary International). Full quotes in Coach_Adrian_Ding_Website_2025.pdf — copy verbatim from source, don't paraphrase. Carousel has a visible Pause/Play control.
+10. **Gallery preview** — three recent events, link → `/gallery`.
+11. **Footer** (global) — see Global Components below.
+
+> **Section grounds** alternate `bg-background` / `bg-muted/40` (no `border-t` dividers between sections) except Companies + Stats, which deliberately share one `bg-background` ground.
+>
+> **History:** an earlier reorder had moved the About teaser, Gallery preview and Workshops-open list off the landing page; the 2026-09-01 funnel rework brought them back in the order above, with the fork (`#which-path`) as the single decision point and the hero reduced to one CTA.
+
+---
+
+## Companies Served — Roster
+
+Client-supplied roster, used by the filterable marquee on the Landing page and reused on Corporate Training. Data lives in `src/lib/companies.ts`. **91 companies across 7 categories; 44 have logo artwork, 47 are shown as name chips pending artwork** (the marquee footnotes the count).
+
+| Category                         | Companies                                                                                                                                                                                                                                                                                                                                                                   | Missing logo artwork                             |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| **Multi-nationals** (30)         | HSBC, Global Payments, Worldpay, Alstom, Bombardier, Wipro, Optum, Mercedes-Benz Global Services PH, The Linde Group, Nestlé, Knowles Electronics, Teradyne, GlaxoSmithKline, bioMérieux, Lear, Yara, NTT, Unilever, KMC Solutions, Kohler, Timex, adidas, Mactan-Cebu International Airport, Tsuneishi, NKC, SDNI, 5ELK, BSA Solutions, Autoliv, Rise                      | The Linde Group, Knowles Electronics, SDNI, 5ELK |
+| **Mega-corporations** (22)       | Petron, PLDT, Petron Dealers Association (PETDA), Aboitiz Power, Vivant, Energy Development Corp (EDC), Jollibee Foods Corporation, Unilab, Rose Pharmacy, IPI, South Star Drug, Global Pacific, Toyota, The Generics Pharmacy, Chong Hua Hospital, Cebu Orthopedic Institute, T1 Project Services, Run Time, Athena, Metro Retail Group, Hi-Precision Diagnostics, Apptech | PETDA, T1 Project Services, Run Time, Apptech    |
+| **Finance** (10)                 | Sun Life Philippines, AXA Philippines, Manulife Philippines, Pru Life UK, AIA, FWD, Maxicare · MaxiLife · MaxiHealth+, Insular Life, Pacific Prime, IMG                                                                                                                                                                                                                     | all 10                                           |
+| **Real Estate Development** (11) | HT Land, Mont Property Ventures, Cebu Landmasters Inc, Apple One, Ayala Land, Quirante Construction Corp., Primary Structures Corporation, Primary Homes, Primary Group of Builders, Concrete Solutions Inc., Sky Rise Realty                                                                                                                                               | all 11                                           |
+| **Hotels & Resorts** (4)         | Shangri-La's Mactan Island Resort & Spa, Sheraton, Plantation Bay, Marco Polo Plaza Hotel                                                                                                                                                                                                                                                                                   | all 4                                            |
+| **Food & Retail** (8)            | Pages Holdings, House of Lechon, My Joy, Ayame, Belcris Foods, Leylam, Thinking Tools Inc., Tom & Tom's Coffee                                                                                                                                                                                                                                                              | all 8                                            |
+| **SMEs & Family Businesses** (6) | Altomed Pharmaceuticals, Medirich Pharma, Evercare Pharmacy, Joyland Industrial Corporation, Charlton Trade, Diagold                                                                                                                                                                                                                                                        | all 6                                            |
+
+> Category assignment is the client's own. Some brand names kept close to the client's spelling; obvious brand casing normalised (Wipro, adidas, bioMérieux). Chase the 47 missing marks before handoff — priority is the all-missing categories (Finance, Real Estate, Hotels, Food & Retail, SMEs).
 
 ---
 
@@ -139,12 +164,14 @@ Build top to bottom:
 ## Page 3: Gallery Page
 
 ### Parent (`/gallery`)
+
 - Grid of all past events/workshops, each card: thumbnail, event name, date, short description
 - Optional filter by year
 - Each card links to its child page
 - CTA at bottom → Workshops page (upcoming)
 
 ### Child (`/gallery/[event-slug]`)
+
 - Event hero image + title + date
 - Full description
 - Photo gallery (grid/lightbox)
@@ -157,13 +184,15 @@ Build top to bottom:
 ## Page 4: Workshops Page
 
 ### Parent (`/workshops`)
+
 - List of all workshops, distinguishing "Open for Registration" vs "Past"
 - Each card: name, date, venue, price, short description, CTA button
 - Currently known workshops:
-  - **Exceptional Salesmanship** — Oct 9, 2026, 9:00–5:00 PM, SEDA Ayala E-bloc. Price: ₱[placeholder]*
-  - **Exceptional Leadership** — Oct 16, 2026, 9:00–5:00 PM, SEDA Ayala E-bloc. Price: ₱[placeholder]*
+  - **Exceptional Salesmanship** — Oct 9, 2026, 9:00–5:00 PM, SEDA Ayala E-bloc. Price: ₱[placeholder]\*
+  - **Exceptional Leadership** — Oct 16, 2026, 9:00–5:00 PM, SEDA Ayala E-bloc. Price: ₱[placeholder]\*
 
 ### Child (`/workshops/[workshop-slug]`)
+
 - Full workshop details: date, time, venue, price, curriculum outline (from source deck), inclusions (training manual, certificate, AM/PM snacks + lunch, 30-day post-training mechanism, online reunion), highlights (targeted audience, format)
 - Primer/teaser video slot (placeholder)
 - **Workshop Registration Form** — multi-step per UX Direction. Fields: Name, Number, Email, Occupation, Salary range, City (optional), consent checkbox. Frontend only — no backend in this phase.
@@ -175,7 +204,7 @@ Build top to bottom:
 
 ## Page 5: Corporate Training Page
 
-*(Not explicitly listed by Chan but required — this is 80% of Adrian's revenue per quote and needs its own funnel, distinct from Workshops.)*
+_(Not explicitly listed by Chan but required — this is 80% of Adrian's revenue per quote and needs its own funnel, distinct from Workshops.)_
 
 1. **Intro/hero-lite** — positions corporate training as the primary offering
 2. **Why Corporate Training** — value prop tied to stats (20,000+ trained, Top 500 companies)
@@ -190,15 +219,19 @@ Build top to bottom:
 ## Global Components
 
 ### Navbar
+
 Logo, links to About / Gallery / Workshops / Corporate Training / Contact. Sticky, smooth-scroll anchors where applicable.
 
 ### Footer
+
 Contact info (coachadrianding@maximumimpact.online, 0920.900.7709), social links (Instagram, LinkedIn, Facebook, TikTok), quick nav links, copyright.
 
 ### Contact
+
 No standalone contact page needed at this phase — contact info lives in footer + is reinforced at each form's confirmation step. Revisit if Chan wants a dedicated page later.
 
 ### Data Privacy
+
 Consent checkbox (PH Data Privacy Act) on both Workshop Registration and Corporate Training Inquiry forms. No separate TOS page needed for this phase.
 
 ---
@@ -206,14 +239,17 @@ Consent checkbox (PH Data Privacy Act) on both Workshop Registration and Corpora
 ## Email Templates (client-facing — build ahead, for Chan's review before handoff)
 
 ### 1. Workshop Registration Confirmation
+
 **Trigger:** Immediately after Workshop Registration Form submission
 **Contents:** Confirmation of registration, event summary (name/date/time/venue), payment instructions + bank/QR placeholder, reminder to reply to the same email thread with proof of payment, optional primer/teaser video embed, contact info for questions
 
 ### 2. Payment Confirmation
+
 **Trigger:** Staff manually marks registrant as PAID in CRM
 **Contents:** Payment confirmed, event reminder (date/time/venue), event-specific primer/teaser video, what to bring/expect, contact info
 
 ### 3. Corporate Training Inquiry Acknowledgment
+
 **Trigger:** Immediately after Corporate Training Inquiry Form submission
 **Contents:** Acknowledgment of inquiry received, expected turnaround for staff follow-up, brief reinforcement of credibility (stat or two), contact info
 
@@ -225,26 +261,27 @@ Consent checkbox (PH Data Privacy Act) on both Workshop Registration and Corpora
 
 Images live flat in `public/images/` (no subfolders — per Iridel template convention).
 
-| Filename | Used in | Status |
-| -------- | ------- | ------ |
-| `ad-hero-portrait.png` (1080×1720, transparent) | Landing Hero — stage-1 colour cut; grayscale-filtered for the stage-2 mono | ✅ real |
-| `ad-hero-portrait-mono.png` (1080×1720) | Delivered mono cut — **unused**: it's a flat white-backed photo, so the hero grayscales the transparent cut instead. Re-export with transparency to use it. | ⚠️ on file, not wired |
-| `ad-hero-bg.png` (1920×1080) | Landing Hero — B&W background plate behind the two-stage narrative | ✅ real |
-| `ad-logo-black.png` / `ad-logo-white.png` | Navbar / hero lockup (hero uses white) | ✅ real |
-| `ad-photo-1.png` / `ad-photo-2.png` / `ad-photo-3.png` | About / secondary | ✅ real (unplaced) |
-| `maximum-impact-logo.png` / `aet-logo.png` / `cpd-logo.png` | Hero stage 2 — org credential badges (CEO / Founder). Renamed from spaced filenames; backgrounds knocked out to transparent, rendered white-silhouette on the dark plate. `maximum-impact` is a clean mark; `aet` reads; `cpd` is an embossed wordmark that silhouettes patchily. | ⚠️ transparent, mixed quality |
-| `insead-logo.png` / `genos-logo.png` / `trainer-logo.png` | Hero stage 2 — dated timeline badges. Transparent now. `insead` silhouettes clean; **`genos` is a certification badge graphic and `trainer` is a full certificate scan — they silhouette to white blobs.** Need real vector logos. | ⚠️ transparent; genos/trainer unusable as marks |
-| `images/logos/*` | Companies Served marquee | ⚠️ mixed — several files have URL-junk names, one 17 MB jpg, one stray `.html`; needs a cleanup pass before wiring the marquee |
-| bio-coffee-shot | About | [ ] pending |
-| event-gallery-* | Gallery | [ ] pending |
+| Filename                                                                                              | Used in                                                                                                                                                                                                                                                                                                                                     | Status                                                                                                                                           |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ad-hero-portrait.webp` (1080×1720, transparent, `cwebp`-recompressed from the `.png`, 2.3MB → 158KB) | Landing Hero — stage-1 colour cut; grayscale-filtered for the stage-2 mono                                                                                                                                                                                                                                                                  | ✅ real                                                                                                                                          |
+| `quotebg-cutout.webp` (1080×1475, transparent, recompressed from the `.png`, 775KB → 60KB)            | Landing quote-reveal — the seated mascot cutout                                                                                                                                                                                                                                                                                             | ✅ real                                                                                                                                          |
+| `ad-hero-portrait-mono.png` (1080×1720)                                                               | Delivered mono cut — **unused**: it's a flat white-backed photo, so the hero grayscales the transparent cut instead. Re-export with transparency to use it.                                                                                                                                                                                 | ⚠️ on file, not wired                                                                                                                            |
+| `ad-hero-bg.png` (1920×1080)                                                                          | Landing Hero — B&W background plate behind the two-stage narrative                                                                                                                                                                                                                                                                          | ✅ real                                                                                                                                          |
+| `ad-logo-black.svg` / `ad-logo-white.svg`                                                             | Navbar, footer, staff-login, editorial-hero link bar (black on light / white on the dark hero), email-template header. Vector "AD" monogram; transparent, single-colour glyph (`#1e1e1e` / `#fff`), derived from the supplied `AD Logo - Black.svg` with its opaque white background stripped. Superseded PNGs still on disk, unreferenced. | ✅ real                                                                                                                                          |
+| `ad-photo-1.png` / `ad-photo-2.png` / `ad-photo-3.png`                                                | About / secondary                                                                                                                                                                                                                                                                                                                           | ✅ real (unplaced)                                                                                                                               |
+| `maximum-impact-logo.png` / `aet-logo.png` / `cpd-logo.png`                                           | Hero stage 2 — org credential badges (CEO / Founder). Renamed from spaced filenames; backgrounds knocked out to transparent, rendered white-silhouette on the dark plate. `maximum-impact` is a clean mark; `aet` reads; `cpd` is an embossed wordmark that silhouettes patchily.                                                           | ⚠️ transparent, mixed quality                                                                                                                    |
+| `insead-logo.png` / `genos-logo.png` / `trainer-logo.png`                                             | Hero stage 2 — dated timeline badges. Transparent now. `insead` silhouettes clean; **`genos` is a certification badge graphic and `trainer` is a full certificate scan — they silhouette to white blobs.** Need real vector logos.                                                                                                          | ⚠️ transparent; genos/trainer unusable as marks                                                                                                  |
+| `images/co-*.{svg,png,jpg}`                                                                           | Companies Served marquee                                                                                                                                                                                                                                                                                                                    | ⚠️ 44 cleaned marks wired (`co-` prefix); **47 roster companies still have no artwork** and render as name chips — see Companies Served — Roster |
+| bio-coffee-shot                                                                                       | About                                                                                                                                                                                                                                                                                                                                       | [ ] pending                                                                                                                                      |
+| event-gallery-\*                                                                                      | Gallery                                                                                                                                                                                                                                                                                                                                     | [ ] pending                                                                                                                                      |
 
 ### Fonts (installed — `src/app/fonts/`, wired in `src/app/layout.tsx`)
 
-| Role | Font | Source | Var |
-| ---- | ---- | ------ | --- |
-| Serif / display (logo, headings, wordmark) | **The Seasons** (Regular + Bold) | web-sourced woff2 | `--font-the-seasons` → `font-serif` |
-| Body | **Red Hat Display** (300–900) | `next/font/google` | `--font-red-hat` → `font-sans` |
-| Accent (callouts only) | **Abramo** Serif | web-sourced woff2 | `--font-abramo` → `font-accent` |
+| Role                                       | Font                             | Source             | Var                                 |
+| ------------------------------------------ | -------------------------------- | ------------------ | ----------------------------------- |
+| Serif / display (logo, headings, wordmark) | **The Seasons** (Regular + Bold) | web-sourced woff2  | `--font-the-seasons` → `font-serif` |
+| Body                                       | **Red Hat Display** (300–900)    | `next/font/google` | `--font-red-hat` → `font-sans`      |
+| Accent (callouts only)                     | **Abramo** Serif                 | web-sourced woff2  | `--font-abramo` → `font-accent`     |
 
 > The Seasons + Abramo are commercial faces; the installed woff2 are web-download copies for the
 > demo. Swap in licensed files (same filenames) before client handoff.
@@ -253,7 +290,7 @@ Images live flat in `public/images/` (no subfolders — per Iridel template conv
 
 ## Delivery
 
-| Field  | Value |
-| ------ | ----- |
-| Format | Vercel preview URL |
+| Field  | Value                                                                                                                                                                                  |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Format | Vercel preview URL                                                                                                                                                                     |
 | Notes  | Demo represents full quote scope visually (CMS/CRM/auth/payment tracking as static UI). No real backend, database, or integrations in this phase. Approval unlocks Phase 2 full build. |

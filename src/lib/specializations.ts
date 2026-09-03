@@ -12,6 +12,7 @@ import {
   UserRoundCheck,
   type LucideIcon,
 } from "lucide-react"
+import { placeholderImg } from "@/lib/images"
 
 export type Specialization = {
   key: string
@@ -42,7 +43,7 @@ export const SPECIALIZATIONS: Specialization[] = [
   },
   {
     key: "culture",
-    title: "Building Winning Cultures & High-Performing Teams",
+    title: "Winning Cultures & High-Performing Teams",
     blurb:
       "The rituals and standards that compound a group of good people into a team that wins.",
     detail:
@@ -77,3 +78,30 @@ export const SPECIALIZATIONS: Specialization[] = [
     icon: UserRoundCheck,
   },
 ]
+
+/* TODO: replace the placeholderImg() Unsplash stand-ins with real program
+   photos once the client supplies them — one landscape shot per program. */
+export const SPECIALIZATION_IMAGES: Record<string, string> = {
+  leadership: placeholderImg("1552664730-d307ca884978", 1400, 800),
+  keynotes: placeholderImg("1475721027785-f74eccf877e2", 1400, 800),
+  culture: placeholderImg("1522071820081-009f0129c71c", 1400, 800),
+  communication: placeholderImg("1543269865-cbf427effbad", 1400, 800),
+  "train-the-trainer": placeholderImg("1524178232363-1fb2b075b655", 1400, 800),
+  "personal-branding": placeholderImg("1560250097-0b93528c311a", 1400, 800),
+}
+
+// Last card's portrait shot crops too low by default (object-cover centers
+// vertically); bias it toward the top so the subject's face isn't cut off.
+export const SPECIALIZATION_IMAGE_POSITIONS: Record<string, string> = {
+  "personal-branding": "50% 8%",
+}
+
+export const SPECIALIZATION_IMAGE_ALTS: Record<string, string> = {
+  leadership: "Managers in a leadership development session around a table",
+  keynotes: "Adrian Ding on stage delivering a keynote to a full room",
+  culture: "A team working closely together in an open workspace",
+  communication: "A leader presenting to colleagues in a meeting room",
+  "train-the-trainer": "An internal facilitator running a training session",
+  "personal-branding":
+    "A professional in a considered, confident portrait setting",
+}

@@ -17,7 +17,7 @@ export default function StaffLoginPage() {
       <div className="border-border/70 w-full max-w-sm rounded-md border p-8 text-center">
         <Link href="/" className="inline-flex items-center gap-2">
           <Image
-            src="/images/ad-logo-black.png"
+            src="/images/logos/ad-logo-black.svg"
             alt="Adrian Ding monogram"
             width={80}
             height={80}

@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Mail } from "lucide-react"
 import { gsap, useGSAP } from "@/app/_lib/gsap"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -93,14 +93,16 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
   if (done) {
     const v = getValues()
     return (
-      <div ref={paneRef} className="border-border/70 rounded-md border p-8">
-        <div className="bg-brand/10 text-brand flex size-12 items-center justify-center rounded-full">
-          <Check className="size-6" />
+      <div ref={paneRef}>
+        <div className="my-8 flex items-center justify-center gap-3">
+          <div className="bg-brand/10 text-brand flex size-12 shrink-0 items-center justify-center rounded-full">
+            <Check className="size-6" />
+          </div>
+          <h3 className="text-2xl font-semibold tracking-tight">
+            You&rsquo;re on the list, {v.fullName.split(" ")[0]}.
+          </h3>
         </div>
-        <h3 className="mt-5 font-serif text-2xl tracking-tight">
-          You&rsquo;re on the list, {v.fullName.split(" ")[0]}.
-        </h3>
-        <p className="text-muted-foreground mt-3 leading-relaxed">
+        <p className="text-muted-foreground leading-relaxed">
           Your spot for <span className="text-foreground">{workshopTitle}</span>{" "}
           is held. Here is what happens next:
         </p>
@@ -135,10 +137,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
   const current = STEPS[step]
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="border-border/70 rounded-md border p-6 sm:p-8"
-    >
+    <form onSubmit={handleSubmit(onSubmit)}>
       {/* Progress */}
       <div className="flex items-center gap-2">
         {STEPS.map((s, i) => (
@@ -155,28 +154,30 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
         Step {step + 1} of {STEPS.length} · {current.title}
       </p>
 
-      <div ref={paneRef} className="mt-6 space-y-5">
+      <div ref={paneRef} className="mt-10 space-y-5">
         {step === 0 && (
           <>
             <Field label="Full name" error={errors.fullName?.message}>
               <Input
-                className="h-12 text-base"
+                className="h-12 text-base placeholder:text-muted-foreground/50"
                 autoComplete="name"
+                placeholder="Juan Dela Cruz"
                 {...register("fullName")}
               />
             </Field>
             <Field label="Email" error={errors.email?.message}>
               <Input
                 type="email"
-                className="h-12 text-base"
+                className="h-12 text-base placeholder:text-muted-foreground/50"
                 autoComplete="email"
+                placeholder="juan@email.com"
                 {...register("email")}
               />
             </Field>
             <Field label="Mobile number" error={errors.phone?.message}>
               <Input
                 type="tel"
-                className="h-12 text-base"
+                className="h-12 text-base placeholder:text-muted-foreground/50"
                 autoComplete="tel"
                 placeholder="0917 000 0000"
                 {...register("phone")}
@@ -189,31 +190,35 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
           <>
             <Field label="Occupation / role" error={errors.occupation?.message}>
               <Input
-                className="h-12 text-base"
+                className="h-12 text-base placeholder:text-muted-foreground/50"
                 placeholder="e.g. Insurance advisor"
                 {...register("occupation")}
               />
             </Field>
             <Field label="Salary range" error={errors.salaryRange?.message}>
-              <select
-                className="border-input bg-background focus-visible:ring-ring h-12 w-full rounded-md border px-3 text-base shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
-                defaultValue=""
-                {...register("salaryRange")}
-              >
-                <option value="" disabled>
-                  Select a range
-                </option>
-                {SALARY_RANGES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
+              <div className="relative">
+                <select
+                  className="border-input bg-background focus-visible:ring-ring h-12 w-full appearance-none rounded-md border py-3 pr-10 pl-3 text-base shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
+                  defaultValue=""
+                  {...register("salaryRange")}
+                >
+                  <option value="" disabled>
+                    Select a range
                   </option>
-                ))}
-              </select>
+                  {SALARY_RANGES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
+              </div>
             </Field>
             <Field label="City (optional)" error={errors.city?.message}>
               <Input
-                className="h-12 text-base"
+                className="h-12 text-base placeholder:text-muted-foreground/50"
                 autoComplete="address-level2"
+                placeholder="Cebu City"
                 {...register("city")}
               />
             </Field>
@@ -222,7 +227,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
 
         {step === 2 && (
           <>
-            <dl className="bg-muted/40 space-y-2 rounded-sm p-4 text-sm">
+            <dl className="bg-muted/40 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-sm p-4 text-sm">
               <Row k="Workshop" v={workshopTitle} />
               <Row k="Schedule" v={schedule} />
               <Row k="Venue" v={venue} />
@@ -294,9 +299,9 @@ function Field({
 
 function Row({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex justify-between gap-4">
-      <dt className="text-muted-foreground">{k}</dt>
-      <dd className="text-foreground text-right font-medium">{v}</dd>
-    </div>
+    <>
+      <dt className="text-muted-foreground text-right">{k}</dt>
+      <dd className="text-foreground text-left font-medium">{v}</dd>
+    </>
   )
 }

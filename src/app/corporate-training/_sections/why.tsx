@@ -1,9 +1,9 @@
 import { Counter } from "@/app/_components/counter"
 import { Reveal } from "@/app/_components/reveal"
-import { SplitReveal } from "@/app/_components/split-reveal"
 
 /**
- * Corporate Training — the case, tied to the numbers.
+ * Corporate Training — the case, tied to the numbers. Flows directly off the
+ * intro (no hard divider). Three stats in a row, no header.
  */
 
 const POINTS = [
@@ -29,17 +29,11 @@ const POINTS = [
 
 export function CorporateWhy() {
   return (
-    <section className="border-border/60 mx-auto max-w-5xl border-t px-6 py-24 sm:px-8 lg:py-36">
-      <SplitReveal
-        rule
-        className="max-w-3xl font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
-      >
-        Why teams keep bringing Adrian back
-      </SplitReveal>
-      <Reveal stagger={0.12} className="mt-16 grid gap-12 sm:grid-cols-3">
+    <section className="mx-auto max-w-5xl px-6 pt-20 pb-24 sm:px-8 sm:pt-24 lg:pt-32 lg:pb-36">
+      <Reveal stagger={0.12} className="grid gap-12 sm:grid-cols-3">
         {POINTS.map((p) => (
           <div key={p.label}>
-            <p className="text-brand font-serif text-5xl tracking-[-0.02em] lg:text-6xl">
+            <p className="text-brand text-5xl font-semibold tracking-[-0.02em] lg:text-6xl">
               <Counter to={p.value} prefix={p.prefix} suffix={p.suffix} />
             </p>
             <p className="text-foreground mt-3 text-sm font-semibold tracking-[0.08em] uppercase">

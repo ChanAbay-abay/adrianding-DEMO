@@ -1,9 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Marquee } from "@/app/_components/marquee"
+import { SiteNavbar } from "@/app/_components/site-navbar"
 import { gsap, useGSAP, EASE, DUR } from "@/app/_lib/gsap"
 
 /**
@@ -12,60 +12,61 @@ import { gsap, useGSAP, EASE, DUR } from "@/app/_lib/gsap"
  * A single full-screen frame in the GQ / Architectural Digest register, modelled
  * on the Jasmine Star cover treatment:
  *
- *   - `ad-bg-2.png` fills the frame (the file already carries a mono grade); a
+ *   - `ad-bg-2.webp` fills the frame (the file already carries a mono grade); a
  *     light scrim + vignette keep the white type legible.
  *   - The portrait cut-out sits right-of-centre, magazine-cover-subject style,
  *     with the wordmark's tail running over its shoulder.
- *   - "Adrian Ding" is set as one enormous serif line in the TOP-LEFT (it runs
- *     into the portrait, cover-style), with the belief-statement tagline and the
- *     social icons stacked right under it.
- *   - The role list (coach / trainer / speaker / writer) sits in the BOTTOM-LEFT
- *     above one CTA button that anchors to the page's #cta section (built later —
- *     it will branch to workshop registration vs. corporate-training contact).
+ *   - "Adrian Ding" is set as one enormous serif line, left-aligned and parked
+ *     on the page's y-axis (it runs across the vertical middle and into the
+ *     portrait, cover-style), with a quiet static role line (coach / trainer /
+ *     speaker / writer) under it; the social icons sit right under that group.
  *
- * Nav is split like the reference: a minimal top row (one Register CTA) that
- * scrolls away with the hero, plus the main link bar which sits at the hero's
- * bottom edge and then pins to the top of the viewport for the rest of the page.
+ * Nav: no CTA floats over the hero itself — the shared <SiteNavbar> (same
+ * component, same logo/links/CTA, as every other page) is pinned to the top
+ * of the viewport from the first frame, same as every other page. It renders
+ * as the *first* child, before the hero, so its own `position: sticky; top: 0`
+ * engages immediately instead of waiting for the hero to scroll past; its
+ * `z-50` keeps it painting above the hero's `z-0` regardless of DOM order.
  *
- * That pin is pure CSS — no scroll listener. The `<nav>` is a sibling *after*
- * the hero with `margin-top: calc(var(--nav-h) * -1)`, so its natural position
- * is the hero's bottom edge; `position: sticky; top: 0` then lets it rise with
- * the scroll and lock at the top. Its containing block is the page `<main>`, so
- * it stays locked past the hero. The hand-off frame is seamless because the bar
- * is exactly `--nav-h` tall — at the lock frame the hero's bottom edge and the
- * bar's bottom edge coincide. (cf. lessons.md 2026-08-09 — sticky, not a JS
- * position state-machine.)
- *
- * NOTE (hero restart, this pass): the previous two-stage pinned narrative —
- * portrait colour->mono, "Ding" rising to align, the org / dated-timeline
- * credential-badge reveal, and the `.hero-curtain` page-rise — is intentionally
- * dropped here. That credential content has no home in this direction yet.
- *
- * No scroll pin, no `.hero-curtain`, no scroll-snap. Reduced motion -> the
+ * No scroll pin, no page-rise curtain, no scroll-snap. Reduced motion -> the
  * resolved composition, painted immediately.
  *
- * Assets (flat in public/images/): ad-bg-2.png · ad-hero-portrait.png ·
- * ad-logo-white.png
+ * Assets: mascot/ad-bg-2.webp · mascot/ad-hero-portrait.webp ·
+ * logos/ad-logo-white.svg · logos/ad-logo-black.svg
+ * (both `.webp`s are `cwebp`-recompressed from the original `.png`s — 2.2MB →
+ * 139KB and 2.3MB → 158KB — the PNGs stay on disk unreferenced since
+ * `ad-bg-2.png` is still the `og:image` in `layout.tsx`, which wants a real
+ * PNG/JPG for social-platform compatibility, not WebP.)
  */
 
-const TAGLINE = "Better people build better companies —"
-const TAGLINE_2 = "better companies build a better country."
-
-const SOCIALS = [
-  { label: "Instagram", Icon: Instagram },
-  { label: "Facebook", Icon: Facebook },
-  { label: "LinkedIn", Icon: Linkedin },
-  { label: "YouTube", Icon: Youtube },
+// Kept in step with SiteFooter's own SOCIALS — same five platforms in both
+// places (TikTok rendered from an inline glyph; lucide ships no TikTok icon).
+const SOCIALS: {
+  label: string
+  href: string
+  Icon: React.ComponentType<{ className?: string }>
+}[] = [
+  { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
+  { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
+  { label: "LinkedIn", href: "https://linkedin.com", Icon: Linkedin },
+  { label: "YouTube", href: "https://youtube.com", Icon: Youtube },
+  { label: "TikTok", href: "https://tiktok.com", Icon: TikTokIcon },
 ]
 
-const NAV_LINKS = [
-  { href: "/about", label: "About" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/workshops", label: "Workshops" },
-  { href: "/corporate-training", label: "Corporate Training" },
-]
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={className}
+    >
+      <path d="M16.5 3c.3 2 1.5 3.6 3.5 3.9v2.7c-1.3.1-2.5-.2-3.6-.8v6.6c0 3.4-2.6 5.6-5.7 5.6A5.5 5.5 0 0 1 5 12.9c1-.7 2.2-1.1 3.5-1v2.9a2.7 2.7 0 0 0-1.2-.1 2.6 2.6 0 0 0 .5 5.1c1.5 0 2.8-1.2 2.8-3V3h3.9Z" />
+    </svg>
+  )
+}
 
-// Cover lines — his four hats, stacked bottom-left like a magazine's cover copy.
+// His four hats, set as one quiet line under the wordmark, magazine-cover style.
 const ROLES = [
   "Leadership Development Coach",
   "Corporate Trainer",
@@ -73,25 +74,21 @@ const ROLES = [
   "Inspirational Writer",
 ]
 
-// #cta — the section is built later; it branches to workshop registration vs.
-// corporate-training contact. Every funnel button on the hero points here.
-const CTA_HREF = "#cta"
-
+// No clip mask around the wordmark (see the wrapper below), so leading is free —
+// it can't chop the "theSeasons" caps or the "g" tail whatever the size. Sizing
+// is still being tuned. The role marquee below is clipped short of the final "g"
+// (~89% width), so the descender has its own clear lane — no `pb` reserve needed.
+// Mobile gets its own, bigger clamp (`sm:` restores the original formula
+// exactly, so nothing above 640px changes from the pre-mobile-pass sizing).
 const WORD =
-  "block font-serif font-normal whitespace-nowrap leading-[0.82] tracking-[-0.03em] text-white text-[clamp(3rem,12vw,10.5rem)] [text-shadow:0_12px_60px_rgba(0,0,0,0.55)]"
-
-const NAV_LINK =
-  "text-[0.7rem] font-semibold tracking-[0.16em] text-white/75 uppercase transition-colors hover:text-white"
-
-const ROLE_LINE =
-  "he-line text-[0.72rem] font-semibold tracking-[0.22em] text-white/70 uppercase"
+  "block font-serif font-normal whitespace-nowrap leading-[0.95] tracking-[-0.03em] text-white text-[clamp(3.85rem,14vw,9.5rem)] sm:text-[clamp(2.75rem,10vw,9.5rem)] [text-shadow:0_12px_60px_rgba(0,0,0,0.6)]"
 
 export function HeroEditorial() {
   useGSAP(() => {
     const mm = gsap.matchMedia()
 
     mm.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set(".he-bg, .he-portrait, .he-word, .he-line, .he-nav", {
+      gsap.set(".he-bg, .he-portrait, .he-word, .he-line", {
         autoAlpha: 1,
         scale: 1,
         y: 0,
@@ -107,37 +104,16 @@ export function HeroEditorial() {
           { yPercent: 8, scale: 1.04, autoAlpha: 0, duration: DUR.slow },
           "-=1.05"
         )
-        .from(".he-word", { yPercent: 118, duration: 0.95 }, "-=0.7")
+        .from(
+          ".he-word",
+          { yPercent: 40, autoAlpha: 0, duration: 0.95 },
+          "-=0.7"
+        )
         .from(
           ".he-line",
           { y: 18, autoAlpha: 0, duration: DUR.base, stagger: 0.08 },
           "-=0.5"
         )
-        .from(".he-nav", { y: 22, autoAlpha: 0, duration: DUR.base }, "<0.1")
-
-      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        const bg = gsap.quickTo(".he-bg", "xPercent", {
-          duration: 0.7,
-          ease: "power3.out",
-        })
-        const bgY = gsap.quickTo(".he-bg", "yPercent", {
-          duration: 0.7,
-          ease: "power3.out",
-        })
-        const por = gsap.quickTo(".he-portrait", "xPercent", {
-          duration: 0.7,
-          ease: "power3.out",
-        })
-        const onMove = (e: MouseEvent) => {
-          const x = e.clientX / window.innerWidth - 0.5
-          const y = e.clientY / window.innerHeight - 0.5
-          bg(x * -2)
-          bgY(y * -1.5)
-          por(x * 2)
-        }
-        window.addEventListener("mousemove", onMove, { passive: true })
-        return () => window.removeEventListener("mousemove", onMove)
-      }
     })
 
     return () => mm.revert()
@@ -145,32 +121,44 @@ export function HeroEditorial() {
 
   return (
     <>
+      {/* Same navbar as every other page (<SiteNavbar>) — pinned to the top
+          from the first frame. It renders before the hero so its own
+          `sticky top-0` engages immediately; its `z-50` keeps it painting
+          above the hero regardless of DOM order. */}
+      <SiteNavbar className="he-nav" initialTheme="dark" />
       {/* `sticky top-0` so the hero holds at the top while the opaque
           <QuoteReveal /> sheet (a later sibling, z-10) rides up over it. It stays
           stuck for the rest of the page but is fully covered from there on, so no
           unpin logic is needed. `z-0` boxes its inner z-20/30/40 layers in so
           they can't poke above the sheet. (cf. tasks/lessons.md 2026-08-09.) */}
-      <div className="sticky top-0 z-0 min-h-[100svh] w-full overflow-hidden bg-[#141414]">
+      <div
+        data-navbar-theme="dark"
+        className="sticky top-0 z-0 min-h-[100svh] w-full overflow-hidden bg-[#141414]"
+      >
         {/* Background — ad-bg-2 (already mono). Light scrim + vignette. */}
         <div className="he-bg absolute inset-[-4%] z-0 will-change-transform">
           <Image
-            src="/images/ad-bg-2.png"
+            src="/images/mascot/ad-bg-2.webp"
             alt=""
             fill
             priority
             sizes="110vw"
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_60%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]" />
+          <div className="absolute inset-0 bg-black/18" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_60%_at_50%_40%,transparent_0%,rgba(0,0,0,0.35)_100%)]" />
           {/* Bottom-up wash — grounds the cover lines + CTA over the nav seam. */}
-          <div className="absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-black/42 to-transparent" />
         </div>
 
         {/* Portrait — right-of-centre, cover-subject style */}
-        <div className="he-portrait pointer-events-none absolute -right-[3%] bottom-0 z-20 aspect-[1080/1720] h-[74svh] w-auto will-change-transform select-none sm:right-[4%] sm:h-[82svh] lg:right-[11%] lg:h-[90svh]">
+        {/* `-bottom` offsets each carry an added `+ var(--nav-h)` so the
+            portrait's top edge clears the sticky navbar at every breakpoint —
+            without it, the tighter top clearance at `lg` (~2svh, well under
+            the 4rem bar) lets the subject's head sit behind/under the nav. */}
+        <div className="he-portrait pointer-events-none absolute bottom-[calc(-4svh-var(--nav-h))] left-1/2 z-20 aspect-[1080/1720] h-[76svh] w-auto -translate-x-1/2 will-change-transform select-none sm:right-[2%] sm:bottom-[calc(-12svh-var(--nav-h))] sm:left-auto sm:h-[112svh] sm:translate-x-0 lg:right-[7%] lg:bottom-[calc(-18svh-var(--nav-h))] lg:h-[124svh]">
           <Image
-            src="/images/ad-hero-portrait.png"
+            src="/images/mascot/ad-hero-portrait.webp"
             alt="Coach Adrian Ding"
             fill
             priority
@@ -179,94 +167,74 @@ export function HeroEditorial() {
           />
         </div>
 
-        {/* Top-left cluster — the giant wordmark runs into the portrait,
-            cover-style; the belief line and the socials sit right under it. */}
-        <div className="pointer-events-none absolute top-12 left-6 z-30 sm:top-16 sm:left-10">
-          {/* w-max so the mask wrapper hugs the wordmark — overflow-hidden then
-              only clips the vertical reveal, never the last glyph of "Ding". */}
-          <div className="w-max overflow-hidden pb-[0.12em]">
-            <h1 className={`he-word ${WORD}`}>Adrian Ding</h1>
+        {/* Cover cluster — left-aligned, parked on the page's y-axis (`top-1/2` +
+            translate) so the wordmark sits across the vertical middle. Wordmark
+            + role line are one group; the socials sit under. */}
+        {/* On mobile the cluster is parked a little below centre: at phone
+            width the vertical middle lands across the subject's chin, and the
+            wordmark reads better over the jacket than over his face. From `sm`
+            it returns to the true centre-axis the cover composition is built
+            on. */}
+        <div className="pointer-events-none absolute top-[calc(var(--nav-h)+1.5rem)] left-1/2 z-30 flex w-full max-w-[min(90vw,44rem)] -translate-x-1/2 flex-col items-center text-center sm:top-1/2 sm:left-24 sm:w-auto sm:translate-x-0 sm:-translate-y-1/2 sm:items-start sm:text-left">
+          {/* Wordmark + marquee stay mutually left-aligned to each other at
+              every breakpoint (`items-start`, never centered) — the marquee's
+              width is tuned relative to the wordmark's own left edge so the
+              "g" descender of "Ding" keeps its clear lane on the right (see
+              below). Centering them independently would split that clearance
+              evenly on both sides and starve the right side of it. Centering
+              on the page instead happens one level up: this whole two-line
+              block is a single flex item inside the outer `items-center`
+              wrapper, so it's centered as one unit while staying internally
+              left-aligned. */}
+          <div className="flex flex-col items-start">
+            <div className="w-max">
+              <h1 className={`he-word ${WORD}`}>
+                Adrian Ding
+                <span className="sr-only">
+                  {" "}
+                  — leadership development and corporate training
+                </span>
+              </h1>
+            </div>
+            {/* Roles — a slow, quiet marquee under the wordmark. Given an
+                explicit viewport-relative width (a touch under the wordmark's
+                own) so the "g" descender of "Ding" keeps a clear lane on its
+                right, and so the clipped track can never blow out the cluster.
+                `he-line` fades it in with the rest of the cluster; the Marquee's
+                own tween drives the cycle. */}
+            <div className="he-line mt-3 flex items-center gap-2.5">
+              <Marquee
+                speed={22}
+                gap="2.75rem"
+                className="w-[min(68vw,40rem)] text-[0.7rem] font-semibold tracking-[0.16em] text-white/80 uppercase [text-shadow:0_1px_8px_rgba(0,0,0,0.55)] sm:w-[min(44vw,40rem)] sm:text-[0.72rem] sm:tracking-[0.2em]"
+              >
+                {ROLES.map((role) => (
+                  <span
+                    key={role}
+                    className="flex items-center gap-2.5 whitespace-nowrap"
+                  >
+                    {role}
+                  </span>
+                ))}
+              </Marquee>
+            </div>
           </div>
-          <p className="he-line mt-6 max-w-[32rem] font-serif text-base leading-relaxed text-white/80 italic sm:text-lg">
-            {TAGLINE}
-            <br />
-            {TAGLINE_2}
-          </p>
-          <div className="he-line pointer-events-auto mt-6 flex items-center gap-4">
-            {SOCIALS.map(({ label, Icon }) => (
+          <div className="he-line pointer-events-auto mt-6 flex items-center justify-center gap-1.5 sm:-ml-2.5 sm:justify-start">
+            {SOCIALS.map(({ label, href, Icon }) => (
               <a
                 key={label}
-                href="#"
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
-                className="text-white/70 transition-colors hover:text-white"
+                className="flex size-11 items-center justify-center text-white/80 transition-colors hover:text-white"
               >
                 <Icon className="size-[1.1rem]" />
               </a>
             ))}
           </div>
         </div>
-
-        {/* Bottom-left cluster — cover lines + the single funnel CTA. Padded to
-            clear the pinned nav bar (--nav-h) that overlays the hero's foot. */}
-        <div className="absolute bottom-0 left-6 z-30 flex flex-col items-start gap-6 pb-[calc(var(--nav-h)+3vh)] sm:left-10">
-          <ul className="flex flex-col gap-2">
-            {ROLES.map((role) => (
-              <li key={role} className={ROLE_LINE}>
-                {role}
-              </li>
-            ))}
-          </ul>
-          <div className="he-line">
-            <Button asChild variant="brand" size="lg" className="shadow-xl">
-              <Link href={CTA_HREF}>Work with Adrian</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Top-right — funnel CTA that scrolls away with the hero; the nav bar
-            below carries the lasting one. */}
-        <div className="absolute top-0 right-6 z-40 flex h-14 items-center sm:right-10">
-          <div className="he-line">
-            <Button asChild variant="brand" size="sm" className="shadow-lg">
-              <Link href={CTA_HREF}>Register</Link>
-            </Button>
-          </div>
-        </div>
       </div>
-
-      {/* Main link bar — sits at the hero's bottom edge, then pins to the top.
-          Pure-CSS hand-off: negative top margin drops it onto the hero's bottom
-          edge, `sticky top-0` locks it there on scroll. Height is exactly
-          --nav-h so the lock frame is seamless. Centre is kept clear for the
-          wordmark's descender. */}
-      <nav
-        aria-label="Main"
-        className="he-nav sticky top-0 z-40 mt-[calc(var(--nav-h)*-1)] flex h-(--nav-h) items-center justify-between gap-6 bg-[#141414] px-6 sm:px-10"
-      >
-        <Link
-          href="/"
-          aria-label="Coach Adrian Ding — home"
-          className="flex items-center"
-        >
-          <Image
-            src="/images/ad-logo-white.png"
-            alt="Adrian Ding monogram"
-            width={80}
-            height={80}
-            className="h-7 w-7 object-contain"
-          />
-        </Link>
-        <div className="flex items-center gap-7">
-          {NAV_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className={NAV_LINK}>
-              {l.label}
-            </Link>
-          ))}
-          <Button asChild variant="brand" size="sm">
-            <Link href={CTA_HREF}>Register</Link>
-          </Button>
-        </div>
-      </nav>
     </>
   )
 }

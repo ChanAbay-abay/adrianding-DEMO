@@ -3,6 +3,10 @@
  *
  * TODO: every `quote` below is a placeholder. Replace verbatim (do not
  * paraphrase) from Coach_Adrian_Ding_Website_2025.pdf once supplied.
+ *
+ * TODO: `photo` is unset on every entry — drop headshots in `public/images/`
+ * and point each `photo` at its path. Orgs without logo artwork (Knowles,
+ * PETDA, Rotary International) render as a name chip until a `logo` is added.
  */
 
 export type Testimonial = {
@@ -12,6 +16,15 @@ export type Testimonial = {
   org: string
   /** Include in the corporate-training page's curated subset. */
   corporate: boolean
+  /**
+   * Headshot under /public. TODO: none supplied yet — the carousel shows a
+   * placeholder avatar until a real path is set here.
+   */
+  photo?: string
+  /** Company logo under /public. Omitted orgs render as a name chip. */
+  logo?: string
+  /** Logo artwork proportion; "square" emblems get a taller box. */
+  logoShape?: "wide" | "square"
 }
 
 export const TESTIMONIALS: Testimonial[] = [
@@ -22,6 +35,8 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Learning & Development",
     org: "Wipro",
     corporate: true,
+    logo: "/images/logos/co-wipro.svg",
+    logoShape: "square",
   },
   {
     quote:
@@ -30,6 +45,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Sales Enablement",
     org: "Global Payments",
     corporate: true,
+    logo: "/images/logos/co-global-payments.svg",
   },
   {
     quote:
@@ -38,6 +54,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Human Resources",
     org: "Rose Pharmacy",
     corporate: false,
+    logo: "/images/logos/co-rose-pharmacy.png",
   },
   {
     quote:
@@ -54,6 +71,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "People & Culture",
     org: "Global Pacific",
     corporate: true,
+    logo: "/images/logos/co-global-pacific.png",
   },
   {
     quote:
@@ -62,6 +80,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Learning & Development",
     org: "HSBC",
     corporate: true,
+    logo: "/images/logos/co-hsbc.svg",
   },
   {
     quote:
