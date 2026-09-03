@@ -6,6 +6,29 @@ A warm, minimal, accessibility-first Next.js starter for building client-facing 
 
 ---
 
+## Handoff Notes — Coach Adrian Ding Demo
+
+This repo is a filled-in instance of the template below, built to `PRD.md` (the source of
+truth for scope, copy, and asset status — read it first). Frontend-only: CMS, CRM, auth, and
+payment tracking are represented as UI, not wired to a real backend, per the signed quote
+scope. See `PRD.md` → **Delivery** for the full handoff terms.
+
+**Before this goes to the client or to a build team:**
+
+- **Swap the commercial fonts.** `src/app/fonts/` ships web-sourced copies of **The Seasons**
+  and **Abramo** for demo purposes only — replace them with licensed files (same filenames)
+  before any real handoff. See `PRD.md` → **Fonts**.
+- **47 of 91 companies in the logo marquee have no artwork** and render as name chips. See
+  `PRD.md` → **Companies Served — Roster** for exactly which ones, by category.
+- **Workshop pricing is a placeholder** (`₱[placeholder]*`) pending confirmation — see
+  `PRD.md` → **Page 4: Workshops Page**.
+- **Email templates are copy/layout only** — the actual send-trigger wiring (Resend
+  integration) is Phase 2, not built here.
+- Run `npm run validate` and confirm it's clean before shipping a preview link (see
+  **Scripts** below).
+
+---
+
 ## Workflow
 
 The fastest path from "new client" to "delivered demo":
