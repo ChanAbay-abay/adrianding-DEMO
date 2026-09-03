@@ -13,7 +13,7 @@ export function WorkshopsHero() {
       className="relative flex h-auto min-h-120 w-full items-end overflow-hidden bg-neutral-950 lg:h-[64svh]"
     >
       <Image
-        src="/images/hero/workshops-hero.png"
+        src="/images/hero/workshops-hero.webp"
         alt="Adrian Ding leading a full-day public workshop"
         fill
         priority

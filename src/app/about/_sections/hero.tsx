@@ -15,7 +15,7 @@ export function AboutHero() {
       className="relative flex h-auto min-h-120 w-full items-end overflow-hidden bg-neutral-950 lg:h-[64svh]"
     >
       <Image
-        src="/images/hero/about-hero.jpg"
+        src="/images/hero/about-hero.webp"
         alt="Coach Adrian Ding leading a corporate training session"
         fill
         priority

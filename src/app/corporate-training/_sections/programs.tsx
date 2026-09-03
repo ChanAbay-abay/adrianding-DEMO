@@ -44,10 +44,7 @@ export function CorporatePrograms() {
 
           {/* Rail on the right — held in view while the stack scrolls past. */}
           <div className="order-1 lg:sticky lg:top-28 lg:order-2 lg:self-start">
-            <SplitReveal
-              rule
-              className="font-serif text-[2.5rem] leading-[1.05] tracking-[-0.02em] lg:text-[3rem]"
-            >
+            <SplitReveal className="font-serif text-[2.5rem] leading-[1.05] tracking-[-0.02em] lg:text-[3rem]">
               Programs
               <br />
               <span className="text-brand">we run</span>

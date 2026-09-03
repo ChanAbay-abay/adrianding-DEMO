@@ -45,10 +45,7 @@ export function AboutFaq() {
 
   return (
     <section className="border-border/60 mx-auto max-w-7xl border-t px-6 py-24 sm:px-8 lg:py-36">
-      <SplitReveal
-        rule
-        className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
-      >
+      <SplitReveal className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]">
         Frequently asked questions
       </SplitReveal>
 

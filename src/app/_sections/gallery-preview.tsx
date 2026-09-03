@@ -34,10 +34,7 @@ export function LandingGalleryPreview({
       <div className="mx-auto max-w-7xl px-6 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <SplitReveal
-              rule
-              className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
-            >
+            <SplitReveal className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]">
               {heading}
             </SplitReveal>
             <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-relaxed lg:text-xl">

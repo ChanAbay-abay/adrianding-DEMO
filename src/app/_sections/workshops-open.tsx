@@ -17,10 +17,7 @@ export function LandingWorkshopsOpen() {
   return (
     <section className="bg-background py-24 lg:py-36">
       <div className="mx-auto mb-6 flex max-w-7xl flex-wrap items-baseline justify-between gap-x-6 gap-y-3 px-6 sm:px-8 lg:mb-8">
-        <SplitReveal
-          rule
-          className="max-w-3xl font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
-        >
+        <SplitReveal className="max-w-3xl font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]">
           Join Our Workshops
         </SplitReveal>
         <Link

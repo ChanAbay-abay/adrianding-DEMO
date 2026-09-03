@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
-import { useAnimate, stagger, AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 
 import Floating, { FloatingElement } from "@/components/ui/parallax-floating"
@@ -333,7 +333,6 @@ export function EventPhotoWall({
   photos: GalleryPhoto[]
   reflections: GalleryReflection[]
 }) {
-  const [scope, animate] = useAnimate()
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -346,14 +345,6 @@ export function EventPhotoWall({
   )
 
   useEffect(() => setMounted(true), [])
-
-  useEffect(() => {
-    animate(
-      "[data-wall-tile]",
-      { opacity: [0, 1] },
-      { duration: 0.6, delay: stagger(0.06) }
-    )
-  }, [animate])
 
   useEffect(() => {
     if (lightboxIndex === null) return
@@ -378,7 +369,7 @@ export function EventPhotoWall({
   const activePhoto = lightboxIndex !== null ? photoItems[lightboxIndex] : null
 
   return (
-    <div ref={scope} className="bg-background relative">
+    <div className="bg-background relative">
       {/* Mobile — the same photos and reflections, in the same order, as a
           staggered vertical column. Each photo gets a width + horizontal
           shift so it drifts off-center — some run past the screen edge and
@@ -443,7 +434,7 @@ export function EventPhotoWall({
         <div className="min-h-(--wall-h-m) md:min-h-(--wall-h-d)" />
         <div className="absolute inset-0">
           <Floating sensitivity={-0.15}>
-            {items.map((item) => {
+            {items.map((item, index) => {
               const positionStyle = {
                 "--wall-top-m": `${item.topMobile}%`,
                 "--wall-top-d": `${item.topDesktop}%`,
@@ -467,7 +458,8 @@ export function EventPhotoWall({
                   >
                     <div
                       data-wall-tile
-                      className="w-full opacity-0 select-none"
+                      style={{ "--tile-i": index } as React.CSSProperties}
+                      className="animate-wall-tile-in w-full select-none"
                     >
                       <p className="text-muted-foreground text-sm font-semibold tracking-[0.12em] uppercase lg:text-base">
                         {item.eyebrow}
@@ -493,7 +485,8 @@ export function EventPhotoWall({
                     type="button"
                     data-wall-tile
                     onClick={() => setLightboxIndex(photoIndex)}
-                    className="group focus-visible:ring-brand isolate block w-full cursor-pointer text-left opacity-0 outline-none focus-visible:z-10 focus-visible:ring-2"
+                    style={{ "--tile-i": index } as React.CSSProperties}
+                    className="animate-wall-tile-in group focus-visible:ring-brand isolate block w-full cursor-pointer text-left outline-none focus-visible:z-10 focus-visible:ring-2"
                   >
                     <div
                       className="relative w-full origin-center overflow-hidden rounded-3xl border border-transparent transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:group-hover:scale-[1.04] md:group-focus-visible:scale-[1.04]"

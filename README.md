@@ -17,7 +17,13 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). No environment variables, no backend.
+Open [http://localhost:3000](http://localhost:3000). No backend.
+
+One optional environment variable: `NEXT_PUBLIC_SITE_URL`. It sets `metadataBase` — the host
+every canonical/`og:url`/`og:image` URL is resolved against. Unset, the build resolves itself
+(`VERCEL_PROJECT_PRODUCTION_URL` → `VERCEL_URL` → `localhost:3000`), which is what you want on
+every preview deploy. **Don't hard-code `adrianding.com`** — that's the client's existing live
+site, and pointing `og:image` there makes link previews 404 silently.
 
 ---
 
@@ -30,17 +36,17 @@ layer described below.
 Routes shipped: `/` (landing), `/about`, `/workshops` + `/workshops/[slug]`,
 `/corporate-training`, `/gallery` + `/gallery/[slug]`, `/staff-login`, `/email-templates`.
 
-| Route | Sections |
-| --- | --- |
-| `/` | editorial hero · companies marquee · specializations · paths · stats · workshops-open · quote-reveal · testimonials · CTA |
-| `/about` | hero · story · journey/timeline · certifications · FAQ |
-| `/workshops` | hero · list (calendar) |
-| `/workshops/[slug]` | overview · details · registration form/dialog · register CTA |
-| `/corporate-training` | hero · why · companies · programs · testimonials · inquiry form/CTA |
-| `/gallery` | floating wall grid |
-| `/gallery/[slug]` | event hero · photo wall |
-| `/staff-login` | UI shell only — see below |
-| `/email-templates` | copy/layout preview only — see below |
+| Route                 | Sections                                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `/`                   | editorial hero · companies marquee · specializations · paths · stats · workshops-open · quote-reveal · testimonials · CTA |
+| `/about`              | hero · story · journey/timeline · certifications · FAQ                                                                    |
+| `/workshops`          | hero · list (calendar)                                                                                                    |
+| `/workshops/[slug]`   | overview · details · registration form/dialog · register CTA                                                              |
+| `/corporate-training` | hero · why · companies · programs · testimonials · inquiry form/CTA                                                       |
+| `/gallery`            | floating wall grid                                                                                                        |
+| `/gallery/[slug]`     | event hero · photo wall                                                                                                   |
+| `/staff-login`        | UI shell only — see below                                                                                                 |
+| `/email-templates`    | copy/layout preview only — see below                                                                                      |
 
 ---
 
@@ -50,16 +56,16 @@ Content is real-looking but **representative, not final** in these files. Every 
 card, gallery event, and testimonial needs his input before it ships — don't treat any of
 this as locked copy.
 
-| File | What's pending |
-| --- | --- |
-| `src/lib/workshops.ts` | Each workshop card + detail page: title, curriculum outline, inclusions, and **price** (`"Price on inquiry*"` until confirmed). |
-| `src/lib/gallery.ts` | Each past event (parent grid card + child page): name, date, blurb, photo set, and Adrian's "reflections" copy — written in his voice as a placeholder, not his actual notes. |
-| `src/lib/testimonials.ts` | Every quote is a placeholder pending the real ones from `Coach_Adrian_Ding_Website_2025.pdf`. No headshots supplied yet. |
-| `src/lib/timeline.ts` | Founding year and milestone wording need confirmation. |
-| `src/app/about/_sections/certifications.tsx` | Confirm the exact accrediting-body names and years (AET / CPD). |
-| `src/app/_sections/stats.tsx` | Industry count is a placeholder pending client confirmation. |
-| `src/lib/companies.ts` / logo marquee | 47 of 91 companies have no logo artwork and render as name chips — see `PRD.md` → **Companies Served — Roster**. |
-| `src/app/fonts/` | **The Seasons** and **Abramo** are web-sourced demo copies of commercial fonts — swap for licensed files (same filenames) before any real handoff. See `PRD.md` → **Fonts**. |
+| File                                         | What's pending                                                                                                                                                                |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/workshops.ts`                       | Each workshop card + detail page: title, curriculum outline, inclusions, and **price** (`"Price on inquiry*"` until confirmed).                                               |
+| `src/lib/gallery.ts`                         | Each past event (parent grid card + child page): name, date, blurb, photo set, and Adrian's "reflections" copy — written in his voice as a placeholder, not his actual notes. |
+| `src/lib/testimonials.ts`                    | Every quote is a placeholder pending the real ones from `Coach_Adrian_Ding_Website_2025.pdf`. No headshots supplied yet.                                                      |
+| `src/lib/timeline.ts`                        | Founding year and milestone wording need confirmation.                                                                                                                        |
+| `src/app/about/_sections/certifications.tsx` | Confirm the exact accrediting-body names and years (AET / CPD).                                                                                                               |
+| `src/app/_sections/stats.tsx`                | Industry count is a placeholder pending client confirmation.                                                                                                                  |
+| `src/lib/companies.ts` / logo marquee        | 47 of 91 companies have no logo artwork and render as name chips — see `PRD.md` → **Companies Served — Roster**.                                                              |
+| `src/app/fonts/`                             | **The Seasons** and **Abramo** are web-sourced demo copies of commercial fonts — swap for licensed files (same filenames) before any real handoff. See `PRD.md` → **Fonts**.  |
 
 Before editing a card in gallery/workshops/testimonials, check whether the change is
 cosmetic (safe to make now) or content (needs AD's sign-off first) — when unsure, ask rather
@@ -96,7 +102,9 @@ CRM lead-capture entry points.
 src/
   app/
     page.tsx                composition only, no copy
-    layout.tsx               metadata + fonts
+    layout.tsx               metadata + fonts + <ScrollRefresh />
+    opengraph-image.tsx      generated 1200x630 social card (next/og)
+    og-assets/               PNG/TTF copies Satori can read — see below
     globals.css              design tokens + custom utilities
     _sections/*.tsx           homepage sections
     _components/*.tsx         site-wide chunks (navbar, footer, CTA, GSAP primitives)
@@ -143,6 +151,16 @@ Live in `src/app/_components/` and `src/app/_sections/`, built specifically for 
   `countdown.tsx`, `marquee.tsx` — supporting motion/data-display pieces used across
   workshops, gallery, and about.
 - `bloom-field-background.tsx`, `floating-copy.tsx` — decorative background/copy effects.
+- `scroll-refresh.tsx` — mounted once in the root layout. Re-runs `ScrollTrigger.refresh()`
+  after fonts load, on window load, and on any body resize. Without it every scroll reveal
+  fires up to a full viewport late, because ScrollTrigger resolves `start: "top 85%"` into an
+  absolute position at creation time — before the webfonts swap and SplitText re-wrap shift
+  everything below them.
+- `workshops-calendar.tsx` — marked days are real buttons (plain days are `div`s: a `disabled`
+  button swallows pointer events, so hover styling never lands). The day popover renders in a
+  portal on `document.body` and is positioned from the trigger's viewport rect, flipping its
+  anchored edge near the bottom of the screen. The marker circles are four hand-wobbled SVG
+  paths picked by `date % 4` — deterministic, never randomized, so SSR and client agree.
 
 ---
 
@@ -152,12 +170,12 @@ Live in `src/app/_components/` and `src/app/_sections/`, built specifically for 
 
 Tokens live in `src/app/globals.css`. Brand is a deep maroon/wine (`#980F09`).
 
-| Token | Value | Notes |
-| --- | --- | --- |
-| `--brand` | `oklch(0.4331 0.1689 29.22)` | `#980F09`, primary buttons/links |
-| `--brand-accent` | `oklch(0.615 0.23 29.22)` | Same hue, lifted for legibility as an inline accent word on the cream quote sheet — too light to double as `--brand` |
-| `--brand-accent-dark` | `oklch(0.72 0.15 29.22)` | Dark-mode variant of the accent |
-| `--radius` | `0.25rem` | Near-square |
+| Token                 | Value                        | Notes                                                                                                                |
+| --------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `--brand`             | `oklch(0.4331 0.1689 29.22)` | `#980F09`, primary buttons/links                                                                                     |
+| `--brand-accent`      | `oklch(0.615 0.23 29.22)`    | Same hue, lifted for legibility as an inline accent word on the cream quote sheet — too light to double as `--brand` |
+| `--brand-accent-dark` | `oklch(0.72 0.15 29.22)`     | Dark-mode variant of the accent                                                                                      |
+| `--radius`            | `0.25rem`                    | Near-square                                                                                                          |
 
 Dark mode lifts `--brand` to `oklch(0.53 0.17 29.22)` (~+0.10 L) for contrast against a dark
 ground. Both light and dark tokens are defined — check both before shipping a color change.
@@ -166,6 +184,16 @@ ground. Both light and dark tokens are defined — check both before shipping a 
 
 Glow and border color must shift on hover together with the fill — not just the fill alone.
 Check this specifically on any button variant you touch.
+
+Over a `data-navbar-theme="dark"` section, the navbar CTA takes `.nav-cta-dark`, which swaps
+`--brand` for the lifted `--brand-accent` — the deep maroon reads as a dark blob on black.
+
+### Motion
+
+Mount-time reveals are CSS keyframes, not JS. The gallery walls use `.animate-wall-tile-in`
+with an inline `--tile-i` index for the stagger, so the wall paints immediately instead of
+sitting blank until framer-motion hydrates (measured: 557–1041ms of empty grid before the
+change). Scroll- and interaction-driven motion stays on GSAP/framer-motion.
 
 ### Hover states
 
@@ -179,6 +207,18 @@ on hover — that reads as a bug, not an effect.
 `public/images/` is subfoldered (`gallery/`, `hero/`, `icons/`, `logos/`, `mascot/`) — this
 diverges from the base template's flat rule because of the volume of company logos and
 per-event gallery photos. Company logo files are named `co-<slug>.<ext>`.
+
+Photographic sources are `.webp`. The three inner-page hero banners, `ad-photo-2` and the
+three certification logos were originally 1.5–3.1MB PNG/JPG; they were recompressed with
+`sharp(...).webp({quality: 86})` (~90–97% smaller) and the call sites repointed. The originals
+stay on disk unreferenced per the superseded-asset convention — check `PRD.md`'s asset table
+before adding any new large source image, and run `file <path>` rather than trusting the
+extension (`about-hero.jpg` was actually a PNG).
+
+`src/app/og-assets/` is deliberately _not_ webp: Satori (`next/og`) can read neither `.webp`
+images nor `.woff2` fonts, so the social card reads PNG/TTF conversions off disk and inlines
+them as data URIs. Verify that card against `next build` (`.next/server/app/opengraph-image.body`),
+not `next dev` — Turbopack dev rejects the inlined PNGs while the production render is fine.
 
 `grep -rn "placeholderImg" src/` currently returns 14 hits — these are the Unsplash
 stand-ins in `src/lib/specializations.ts` and elsewhere pending real client photography.
@@ -196,6 +236,8 @@ Confirm each one against `PRD.md` before delivery.
 - [ ] Confirm founding year / milestones in `src/lib/timeline.ts`.
 - [ ] Confirm AET/CPD accrediting-body names and years in `about/_sections/certifications.tsx`.
 - [ ] Resolve all 14 `placeholderImg` calls with real photography.
+- [ ] Set `NEXT_PUBLIC_SITE_URL` to the domain this build is actually served from, and
+      re-check the generated card with `curl -s <host>/ | grep 'og:image'`.
 - [ ] Decide scope and timeline for the CRM/CMS/auth work described above — not part of this
       demo's delivery.
 

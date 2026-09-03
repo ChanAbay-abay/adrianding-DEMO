@@ -43,7 +43,7 @@ export function AboutStory() {
 
         <Reveal className="relative aspect-[4/5] overflow-hidden">
           <Image
-            src="/images/mascot/ad-photo-2.png"
+            src="/images/mascot/ad-photo-2.webp"
             alt="Coach Adrian Ding"
             fill
             priority

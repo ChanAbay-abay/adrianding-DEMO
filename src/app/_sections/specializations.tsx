@@ -36,10 +36,7 @@ export function LandingSpecializations() {
           {/* Left rail — heading + framing line, held in view while the
               card stack on the right scrolls past. */}
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <SplitReveal
-              rule
-              className="font-serif text-[2.5rem] leading-[1.05] tracking-[-0.02em] lg:text-[3rem]"
-            >
+            <SplitReveal className="font-serif text-[2.5rem] leading-[1.05] tracking-[-0.02em] lg:text-[3rem]">
               Six programs,
               <br />
               <span className="text-brand">two decades</span> deep

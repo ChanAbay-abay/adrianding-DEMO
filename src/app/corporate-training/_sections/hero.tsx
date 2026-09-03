@@ -19,7 +19,7 @@ export function CorporateTrainingHero() {
       className="relative flex h-auto min-h-120 w-full items-end overflow-hidden bg-neutral-950 lg:h-[64svh]"
     >
       <Image
-        src="/images/hero/corporate-training-hero.png"
+        src="/images/hero/corporate-training-hero.webp"
         alt="Adrian Ding leading a corporate training session"
         fill
         priority
@@ -47,7 +47,7 @@ export function CorporateTrainingHero() {
               asChild
               variant="brand"
               size="lg"
-              className="h-12 px-6 before:bg-white hover:text-brand hover:shadow-white/30"
+              className="hover:text-brand h-12 px-6 before:bg-white hover:shadow-white/30"
             >
               <Link href="#inquiry">
                 Start an inquiry
@@ -58,7 +58,7 @@ export function CorporateTrainingHero() {
               asChild
               variant="outline"
               size="lg"
-              className="h-12 px-6 before:bg-brand hover:border-brand hover:text-white"
+              className="before:bg-brand hover:border-brand h-12 px-6 hover:text-white"
             >
               <Link href="/workshops">Looking for a workshop instead?</Link>
             </Button>

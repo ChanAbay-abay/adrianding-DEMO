@@ -13,7 +13,7 @@ export const JOURNEY: TimelineEntry[] = [
     year: "2004",
     title: "Certified Trainer — Peak Potentials",
     body: "Completed the Train the Trainer certification under T. Harv Eker's Peak Potentials. It became the foundation of Adrian's platform craft and the way he designs a room.",
-    logoSrc: "/images/logos/trainer-logo.png",
+    logoSrc: "/images/logos/trainer-logo.webp",
     logoAlt: "Peak Potentials Train the Trainer",
   },
   {
@@ -32,7 +32,7 @@ export const JOURNEY: TimelineEntry[] = [
     year: "2017",
     title: "Genos International — Emotional Intelligence",
     body: "Certified in the Genos Emotional Intelligence coaching practice, adding a measured, science-backed layer to the leadership and culture work.",
-    logoSrc: "/images/logos/genos-logo.png",
+    logoSrc: "/images/logos/genos-logo.webp",
     logoAlt: "Genos International",
   },
   {

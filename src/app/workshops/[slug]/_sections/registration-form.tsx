@@ -159,7 +159,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
           <>
             <Field label="Full name" error={errors.fullName?.message}>
               <Input
-                className="h-12 text-base placeholder:text-muted-foreground/50"
+                className="placeholder:text-muted-foreground/50 h-12 text-base"
                 autoComplete="name"
                 placeholder="Juan Dela Cruz"
                 {...register("fullName")}
@@ -168,7 +168,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
             <Field label="Email" error={errors.email?.message}>
               <Input
                 type="email"
-                className="h-12 text-base placeholder:text-muted-foreground/50"
+                className="placeholder:text-muted-foreground/50 h-12 text-base"
                 autoComplete="email"
                 placeholder="juan@email.com"
                 {...register("email")}
@@ -177,7 +177,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
             <Field label="Mobile number" error={errors.phone?.message}>
               <Input
                 type="tel"
-                className="h-12 text-base placeholder:text-muted-foreground/50"
+                className="placeholder:text-muted-foreground/50 h-12 text-base"
                 autoComplete="tel"
                 placeholder="0917 000 0000"
                 {...register("phone")}
@@ -190,7 +190,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
           <>
             <Field label="Occupation / role" error={errors.occupation?.message}>
               <Input
-                className="h-12 text-base placeholder:text-muted-foreground/50"
+                className="placeholder:text-muted-foreground/50 h-12 text-base"
                 placeholder="e.g. Insurance advisor"
                 {...register("occupation")}
               />
@@ -216,7 +216,7 @@ export function RegistrationForm({ workshopTitle, schedule, venue }: Props) {
             </Field>
             <Field label="City (optional)" error={errors.city?.message}>
               <Input
-                className="h-12 text-base placeholder:text-muted-foreground/50"
+                className="placeholder:text-muted-foreground/50 h-12 text-base"
                 autoComplete="address-level2"
                 placeholder="Cebu City"
                 {...register("city")}

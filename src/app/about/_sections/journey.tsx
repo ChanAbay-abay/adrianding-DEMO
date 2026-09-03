@@ -10,10 +10,7 @@ export function AboutJourney() {
   return (
     <section className="bg-muted/40 py-28 lg:py-44">
       <div className="mx-auto max-w-7xl px-6 sm:px-8">
-        <SplitReveal
-          rule
-          className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[4rem]"
-        >
+        <SplitReveal className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[4rem]">
           The journey so far
         </SplitReveal>
         <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-relaxed lg:text-xl">

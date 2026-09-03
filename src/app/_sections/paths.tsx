@@ -64,6 +64,9 @@ import { TextSweepReveal } from "@/app/_components/text-sweep-reveal"
 type Path = {
   href: string
   bg: string
+  /** 10px blur-up placeholder for `bg`, so the lazy-loaded photo doesn't pop
+   * in as a blank rectangle mid-hover (lessons: same pattern as gallery-blur). */
+  bgBlur: string
   fg: string
   imageAlt: string
   /** Per-card position tweak for the fg cut-out (Tailwind translate utils). */
@@ -78,6 +81,8 @@ const PATHS: readonly [Path, Path] = [
   {
     href: "/workshops",
     bg: "/images/hero/workshop-bg.jpg",
+    bgBlur:
+      "data:image/jpeg;base64,/9j/2wBDABIMDRANCxIQDhAUExIVGywdGxgYGzYnKSAsQDlEQz85Pj1HUGZXR0thTT0+WXlaYWltcnNyRVV9hnxvhWZwcm7/2wBDARMUFBsXGzQdHTRuST5Jbm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/wAARCAAGAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAfEAABAwQDAQAAAAAAAAAAAAACAAEDBAURIRITMeH/xAAVAQEBAAAAAAAAAAAAAAAAAAABA//EABYRAQEBAAAAAAAAAAAAAAAAAAEAAv/aAAwDAQACEQMRAD8AobjS081HHLIPAnZncgFt6ypmS1R9hYPWX9H6iK2Fhv/Z",
     fg: "/images/mascot/workshop-fg.png",
     imageAlt: "Adrian Ding working a public workshop room",
     fgClass: "translate-y-[4%]",
@@ -90,6 +95,8 @@ const PATHS: readonly [Path, Path] = [
   {
     href: "/corporate-training#inquiry",
     bg: "/images/hero/corporate-bg.jpg",
+    bgBlur:
+      "data:image/jpeg;base64,/9j/2wBDABIMDRANCxIQDhAUExIVGywdGxgYGzYnKSAsQDlEQz85Pj1HUGZXR0thTT0+WXlaYWltcnNyRVV9hnxvhWZwcm7/2wBDARMUFBsXGzQdHTRuST5Jbm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/wAARCAAGAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAT/xAAgEAABAwQCAwAAAAAAAAAAAAABAAIDBRESIQQTMUHh/8QAFAEBAAAAAAAAAAAAAAAAAAAAAv/EABYRAQEBAAAAAAAAAAAAAAAAAAABMf/aAAwDAQACEQMRAD8AsolbZypJWyxvDWtGO8j5PtUS1CMSvx7QLm2/qInBuv/Z",
     fg: "/images/mascot/corporate-fg.png",
     imageAlt: "Adrian Ding leading a corporate training session",
     fgClass: "translate-x-[5%] translate-y-[4%]",
@@ -174,7 +181,7 @@ export function LandingPaths() {
       <div className="px-6 pt-16 pb-8 text-center sm:px-8 md:hidden">
         {/* Fluid, viewport-locked size + `whitespace-nowrap` so this never
             wraps to a second line, however narrow the phone. */}
-        <h2 className="font-serif text-[clamp(1.75rem,8.8vw,3.2rem)] leading-[1.1] font-bold whitespace-nowrap tracking-[-0.02em]">
+        <h2 className="font-serif text-[clamp(1.75rem,8.8vw,3.2rem)] leading-[1.1] font-bold tracking-[-0.02em] whitespace-nowrap">
           <TextSweepReveal text="Which path is yours?" underline />
         </h2>
       </div>
@@ -294,6 +301,8 @@ function PathCard({
             alt=""
             fill
             sizes={PLATE_SIZES}
+            placeholder="blur"
+            blurDataURL={p.bgBlur}
             className="object-cover"
           />
           <Image
@@ -315,6 +324,8 @@ function PathCard({
               alt=""
               fill
               sizes={PLATE_SIZES}
+              placeholder="blur"
+              blurDataURL={p.bgBlur}
               className="scale-[1.08] object-cover"
             />
           </motion.div>

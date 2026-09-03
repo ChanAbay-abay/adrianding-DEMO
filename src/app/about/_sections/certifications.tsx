@@ -20,12 +20,12 @@ const CERTS: {
   {
     name: "Peak Potentials",
     line: "Train the Trainer certification — T. Harv Eker, 2004",
-    src: "/images/logos/trainer-logo.png",
+    src: "/images/logos/trainer-logo.webp",
   },
   {
     name: "Genos International",
     line: "Emotional Intelligence coaching practice, 2017",
-    src: "/images/logos/genos-logo.png",
+    src: "/images/logos/genos-logo.webp",
   },
   {
     name: "INSEAD",
@@ -41,17 +41,14 @@ const CERTS: {
   {
     name: "CPD Council",
     line: "Accredited professional-development provider",
-    src: "/images/logos/cpd-logo.svg",
+    src: "/images/logos/cpd-logo.webp",
   },
 ]
 
 export function AboutCertifications() {
   return (
     <section className="border-border/60 mx-auto max-w-7xl border-t px-6 py-24 sm:px-8 lg:py-36">
-      <SplitReveal
-        rule
-        className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]"
-      >
+      <SplitReveal className="font-serif text-[2.75rem] leading-[1.05] tracking-[-0.02em] lg:text-[3.75rem]">
         Certifications &amp; accreditations
       </SplitReveal>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Red_Hat_Display, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
+import { ScrollRefresh } from "./_components/scroll-refresh"
 
 const redHatDisplay = Red_Hat_Display({
   variable: "--font-red-hat",
@@ -37,7 +38,20 @@ const abramo = localFont({
   ],
 })
 
-const SITE_URL = "https://adrianding.com"
+// Where this build actually lives — every metadata URL (canonical, og:url, and
+// the generated og:image from `opengraph-image.tsx`) is resolved against it, so
+// it has to be the host serving THIS deployment. Hard-coding the client's domain
+// pointed og:image at adrianding.com/opengraph-image, which is their existing
+// live site and 404s — link previews would have silently shown nothing.
+// Vercel sets these itself; set NEXT_PUBLIC_SITE_URL to override at handoff.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_ENV === "production" &&
+  process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000")
 const TITLE = "Coach Adrian Ding — Leadership Development & Corporate Training"
 const DESCRIPTION =
   "20+ years, 20,000+ leaders trained across HSBC, Wipro, Petron and more. Corporate training and public workshops from the CEO of Maximum Impact PH."
@@ -46,19 +60,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: TITLE,
   description: DESCRIPTION,
+  // og:image / twitter:image come from `app/opengraph-image.tsx` — listing them
+  // here as well would override that generated card with a raw photo.
   openGraph: {
     type: "website",
     url: SITE_URL,
     siteName: "Coach Adrian Ding",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/images/mascot/ad-bg-2.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/images/mascot/ad-bg-2.png"],
   },
 }
 
@@ -68,7 +82,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    // `data-scroll-behavior="smooth"` is not decoration: `scroll-smooth` puts
+    // `scroll-behavior: smooth` on <html>, so the router's own scroll-to-top on
+    // navigation becomes an *animated* scroll from wherever you were. Swapping
+    // in the new route shortens the document and cancels that animation
+    // mid-flight, which is why clicking a nav link from deep in a page used to
+    // drop you halfway down the next one. This attribute tells Next to force an
+    // instant jump for navigation scrolls while native hash anchors stay smooth.
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body
         className={`${redHatDisplay.variable} ${geistMono.variable} ${theSeasons.variable} ${abramo.variable} antialiased`}
       >
@@ -79,6 +100,9 @@ export default function RootLayout({
           Skip to content
         </a>
         {children}
+        {/* Recomputes ScrollTrigger positions once fonts/images settle — see
+            the component for why every reveal fires late without it. */}
+        <ScrollRefresh />
       </body>
     </html>
   )

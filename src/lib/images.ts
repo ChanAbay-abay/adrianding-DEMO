@@ -71,6 +71,9 @@ export function localClientImg(clientSlug: string, filename: string): string {
  * @param photoId - Unsplash photo ID (the 11-char string in the photo URL)
  * @param width   - Desired image width in pixels
  * @param height  - Desired image height in pixels
+ * @param crop    - Optional imgix crop focus ("top", "faces", "entropy", …).
+ *                  Defaults to a centered crop, which cuts the head off tall
+ *                  portrait originals — pass "top" for those.
  *
  * @example
  * placeholderImg("3Mhgvrk4tjM", 1600, 600)
@@ -79,7 +82,9 @@ export function localClientImg(clientSlug: string, filename: string): string {
 export function placeholderImg(
   photoId: string,
   width: number,
-  height: number
+  height: number,
+  crop?: string
 ): string {
-  return `https://images.unsplash.com/photo-${photoId}?w=${width}&h=${height}&fit=crop&auto=format`
+  const focus = crop ? `&crop=${crop}` : ""
+  return `https://images.unsplash.com/photo-${photoId}?w=${width}&h=${height}&fit=crop${focus}&auto=format`
 }

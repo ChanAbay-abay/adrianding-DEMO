@@ -182,7 +182,10 @@ export function SiteNavbar({
               asChild
               variant="brand"
               size="default"
-              className="nav-cta ml-1 px-5 shadow-none"
+              className={cn(
+                "nav-cta ml-1 px-5 shadow-none",
+                dark && "nav-cta-dark"
+              )}
             >
               <Link href={CTA_HREF} onClick={handleCtaClick}>
                 {CTA_LABEL}
@@ -202,7 +205,10 @@ export function SiteNavbar({
               asChild
               variant="brand"
               size="sm"
-              className="nav-cta h-9 px-4 shadow-none"
+              className={cn(
+                "nav-cta h-9 px-4 shadow-none",
+                dark && "nav-cta-dark"
+              )}
             >
               <Link href={CTA_HREF} onClick={handleCtaClick}>
                 {CTA_LABEL}

@@ -161,9 +161,7 @@ export function SiteFooter() {
         >
           Adrian Ding
         </p>
-        <div
-          className="flex w-full flex-col items-center text-center font-serif leading-[0.78] whitespace-nowrap text-white sm:hidden"
-        >
+        <div className="flex w-full flex-col items-center text-center font-serif leading-[0.78] whitespace-nowrap text-white sm:hidden">
           <p style={{ fontSize: "clamp(100px, 34vw, 220px)" }}>Adrian</p>
           {/* "Ding" is 4 letters vs "Adrian"'s 6, so it needs a noticeably
               bigger size (~1.5×) to reach the same left/right edges. */}

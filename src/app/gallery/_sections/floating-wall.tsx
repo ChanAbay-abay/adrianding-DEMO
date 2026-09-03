@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useAnimate, stagger } from "framer-motion"
 
 import Floating, { FloatingElement } from "@/components/ui/parallax-floating"
 import { cn } from "@/lib/utils"
@@ -127,16 +126,7 @@ const {
 } = buildWall()
 
 export function FloatingWall() {
-  const [scope, animate] = useAnimate()
   const [isTouch, setIsTouch] = useState(false)
-
-  useEffect(() => {
-    animate(
-      "[data-gallery-photo]",
-      { opacity: [0, 1] },
-      { duration: 0.6, delay: stagger(0.08) }
-    )
-  }, [animate])
 
   useEffect(() => {
     const mq = window.matchMedia("(hover: none), (pointer: coarse)")
@@ -147,7 +137,7 @@ export function FloatingWall() {
   }, [])
 
   return (
-    <div ref={scope} className="bg-background relative">
+    <div className="bg-background relative">
       {/* Mobile — the wall as a staggered vertical column, same events in the
           same order. Alternating left/right offset and a slight rotation echo
           the desktop wall's scattered composition; a bigger drop + scale on
@@ -203,7 +193,7 @@ export function FloatingWall() {
         <div className="min-h-(--wall-h-m) md:min-h-(--wall-h-d)" />
         <div className="absolute inset-0">
           <Floating sensitivity={-0.15}>
-            {WALL_ITEMS.map((item) => (
+            {WALL_ITEMS.map((item, i) => (
               <FloatingElement
                 key={item.slug}
                 depth={item.depth}
@@ -226,7 +216,8 @@ export function FloatingWall() {
                   href={`/gallery/${item.slug}`}
                   data-gallery-photo
                   tabIndex={0}
-                  className="group focus-visible:ring-brand isolate block cursor-pointer opacity-0 outline-none focus-visible:z-10 focus-visible:ring-2"
+                  style={{ "--tile-i": i } as React.CSSProperties}
+                  className="animate-wall-tile-in group focus-visible:ring-brand isolate block cursor-pointer outline-none focus-visible:z-10 focus-visible:ring-2"
                 >
                   <div
                     className="relative w-full origin-bottom overflow-hidden rounded-3xl border border-transparent transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:group-hover:scale-[1.04] md:group-focus-visible:scale-[1.04]"

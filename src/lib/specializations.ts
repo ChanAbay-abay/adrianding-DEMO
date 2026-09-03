@@ -87,13 +87,21 @@ export const SPECIALIZATION_IMAGES: Record<string, string> = {
   culture: placeholderImg("1522071820081-009f0129c71c", 1400, 800),
   communication: placeholderImg("1543269865-cbf427effbad", 1400, 800),
   "train-the-trainer": placeholderImg("1524178232363-1fb2b075b655", 1400, 800),
-  "personal-branding": placeholderImg("1560250097-0b93528c311a", 1400, 800),
+  // Tall portrait original — a centered 1400x800 crop starts at the mouth, so
+  // take a taller top-anchored crop that actually contains the head.
+  "personal-branding": placeholderImg(
+    "1560250097-0b93528c311a",
+    1400,
+    1200,
+    "top"
+  ),
 }
 
-// Last card's portrait shot crops too low by default (object-cover centers
-// vertically); bias it toward the top so the subject's face isn't cut off.
+// Last card's portrait shot is taller than the card at every breakpoint, so
+// the default centered crop lands on the chest. Bias it up to the eye line —
+// ~42% reads the same framing collapsed and expanded.
 export const SPECIALIZATION_IMAGE_POSITIONS: Record<string, string> = {
-  "personal-branding": "50% 8%",
+  "personal-branding": "50% 42%",
 }
 
 export const SPECIALIZATION_IMAGE_ALTS: Record<string, string> = {
